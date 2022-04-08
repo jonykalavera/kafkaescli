@@ -30,9 +30,9 @@ kafkescli produce hello world --callback tests.json.produce
 # run producer endpoint
 kafkescli runserver
 # produce to hello, from stdin lines"
-echo "hello world of kfk" | kafkescli produce hello
+echo "hello world of kfk" | kafkescli produce hello --stdin
 # consume from hello piped to produce to world
-kafkescli consume hello | kafkescli produce world
+kafkescli consume hello | kafkescli produce world --stdin
 # consume from hello showing medadata and post to webhook
 kafkescli consume hello --metadata --webhook https://myendpoint.example.com
 ```
