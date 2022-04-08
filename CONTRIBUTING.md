@@ -30,22 +30,24 @@ To save time (my writing time and your reading time), I tried to make it short s
 
 ## Unit tests
 
+[[warning|TODO]]
+| write initial tests 
+
 Pull requests must come with unit tests, either new ones (for feature addtitions), changed ones (for feature changes) or non-regression ones (for bug fixes).
-Have a look at the [tests](tests/) folder and the existing automated tests scripts to see how they are organized:
+Have a look at the [tests](tests/) folder and the ~~existing~~ to-be-written automated (not) tests scripts to see how they are organized:
 
 * within the `tests` folder, the subfolders' structure follows the one of the `kafkescli` production code
 * it helps finding the best location to write the unit tests, and where to find the ones corresponding to a feature you want to understand better
 
-This project uses the [pytest](https://docs.pytest.org) framework to run the whole tests suit.
+This project ~~uses~~ will use the [pytest](https://docs.pytest.org) framework to run the whole tests suit.
 It provides useful features like the parametrization of unit test functions and local mocking for example.
 
 ## Code styling
 
-Use pythonesque features (list or dict comprehensions, generators) when possible and relevant.
-
-Use **type annotations** in function signatures and for variables receiving the result of a function call.
 ``` python
-python_version = '3.10+'
+python_version = '3.10+' (could work with others. haven't tested)
+Use pythonesque features (list or dict comprehensions, generators) when possible and relevant.
+Use **type annotations** in function signatures and for variables receiving the result of a function call.
 f'use f-strings to format strings, kafkescli use Python {python_version}'
 ```
 
@@ -58,3 +60,7 @@ use `black`. that's it.
 use `isort`. that's it
 
 I am looking forward to providing the linting settings and checks corresponding to these practices.
+
+---
+
+This document was ~~inspired~~ shamesly stolen from [py2puml](https://github.com/lucsorel/py2puml/). also some of the readme. Go check it out.
