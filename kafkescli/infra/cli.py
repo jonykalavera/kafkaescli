@@ -27,7 +27,7 @@ def _echo_output(metadata, key, messages):
 def consume(
     topics: list[str],
     metadata: bool = False,
-    echo: bool = False,
+    echo: bool = True,
     callback: Optional[str] = None,
     webhook: Optional[str] = None,
 ):
@@ -54,13 +54,13 @@ def _get_messages(stdin, file, messages) -> list[str]:
         messages = list(_get_lines("-"))
     elif file:
         messages = list(_get_lines(file))
-    return messages
+    return messages or []
 
 
 @app.command()
 def produce(
     topic: str,
-    messages: Optional[list[str]] = typer.Option(default=[]),
+    messages: Optional[list[str]] = typer.Argument(None),
     file: Optional[str] = None,
     callback: Optional[str] = None,
     stdin: bool = False,
@@ -75,10 +75,9 @@ def produce(
         callback=callback,
     ).execute()
     result.map_err(log_error_and_exit)
-    if not echo:
-        return
     for msg in result.map(partial(_echo_output, metadata, "message")).unwrap():
-        typer.echo(msg)
+        if echo:
+            typer.echo(msg)
 
 
 @app.command()

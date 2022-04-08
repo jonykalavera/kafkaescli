@@ -2,18 +2,30 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "produce person mocks",
+            "name": "produce json mocks",
             "type": "python",
             "request": "launch",
             "module": "kafkescli",
             "justMyCode": true,
             "args": [
                 "produce",
-                "hello",
+                "json",
                 "--callback",
                 "tests.json.produce",
-                "--messages",
-                "mock"
+                "person"
+            ]
+        },
+        {
+            "name": "consume json mocks",
+            "type": "python",
+            "request": "launch",
+            "module": "kafkescli",
+            "justMyCode": true,
+            "args": [
+                "consume",
+                "json",
+                "--callback",
+                "tests.json.consume",
             ]
         },
         {
@@ -24,12 +36,10 @@
             "justMyCode": true,
             "args": [
                 "produce",
-                "hello",
+                "avro",
                 "--callback",
                 "tests.avro.produce",
-                "--messages",
                 "emesa.hammer.products.product_created",
-                "--echo"
             ]
         },
         {
@@ -40,10 +50,9 @@
             "justMyCode": true,
             "args": [
                 "consume",
-                "hello",
+                "avro",
                 "--callback",
                 "tests.avro.consume",
-                "--echo"
             ]
         },
         {
@@ -66,7 +75,6 @@
             "args": [
                 "produce",
                 "hello",
-                "--message",
                 "world"
             ]
         }
