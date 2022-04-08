@@ -1,0 +1,74 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "produce person mocks",
+            "type": "python",
+            "request": "launch",
+            "module": "kafkescli",
+            "justMyCode": true,
+            "args": [
+                "produce",
+                "hello",
+                "--callback",
+                "tests.json.produce",
+                "--messages",
+                "mock"
+            ]
+        },
+        {
+            "name": "produce avro mocks",
+            "type": "python",
+            "request": "launch",
+            "module": "kafkescli",
+            "justMyCode": true,
+            "args": [
+                "produce",
+                "hello",
+                "--callback",
+                "tests.avro.produce",
+                "--messages",
+                "emesa.hammer.products.product_created",
+                "--echo"
+            ]
+        },
+        {
+            "name": "consume avro mocks",
+            "type": "python",
+            "request": "launch",
+            "module": "kafkescli",
+            "justMyCode": true,
+            "args": [
+                "consume",
+                "hello",
+                "--callback",
+                "tests.avro.consume",
+                "--echo"
+            ]
+        },
+        {
+            "name": "consume hello",
+            "type": "python",
+            "request": "launch",
+            "module": "kafkescli",
+            "justMyCode": true,
+            "args": [
+                "consume",
+                "hello"
+            ]
+        },
+        {
+            "name": "produce hello world",
+            "type": "python",
+            "request": "launch",
+            "module": "kafkescli",
+            "justMyCode": true,
+            "args": [
+                "produce",
+                "hello",
+                "--message",
+                "world"
+            ]
+        }
+    ]
+}
