@@ -5,28 +5,9 @@ Kafka CLI tools
 # Install
 
 Install from git
+
 ```sh
 pip install git+https://github.com/jonykalavera/kafkescli.git
-```
-
-Install from [PyPI](https://pypi.org/project/kafkescli/):
-
-* with `pip`:
-
-```sh
-pip install kafkescli
-```
-
-* with [poetry](https://python-poetry.org/docs/):
-
-```sh
-poetry add kafkescli
-```
-
-* with [pipenv](https://pipenv.readthedocs.io/en/latest/):
-
-```sh
-pipenv install kafkescli
 ```
 
 # Usage
@@ -46,8 +27,10 @@ kafkescli produce hello world
 kafkescli produce hello "world of cli kafka"
 # produce to hello, the message: world with callback function
 kafkescli produce hello world --callback tests.json.produce
+# run producer endpoint
+kafkescli runserver
 # produce to hello, from stdin lines"
-echo "hello world of kfk" |kafkescli produce hello
+echo "hello world of kfk" | kafkescli produce hello
 # consume from hello piped to produce to world
 kafkescli consume hello | kafkescli produce world
 # consume from hello showing medadata and post to webhook
