@@ -46,8 +46,8 @@ It provides useful features like the parametrization of unit test functions and 
 
 ``` python
 python_version = '3.10+' (could work with others. haven't tested)
-Use pythonesque features (list or dict comprehensions, generators) when possible and relevant.
-Use **type annotations** in function signatures and for variables receiving the result of a function call.
+# Use pythonesque features (list or dict comprehensions, generators) when possible and relevant.
+# Use **type annotations**.
 f'use f-strings to format strings, kafkescli use Python {python_version}'
 ```
 
