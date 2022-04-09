@@ -1,7 +1,9 @@
 POETRY_VERSION=1.1.12
 test:
 	mkdir test-results
-	python -m pytest --junitxml=test-results/junit.xml tests/
+	python -m pytest --cov --junitxml=test-results/junit.xml tests/
+	python -m coverage report
+	python -m coverage html  # open htmlcov/index.html in a browser
 
 groom:
 	isort kafkescli/ tests/

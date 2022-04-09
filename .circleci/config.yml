@@ -19,6 +19,8 @@ jobs:
           command: "make pipeline-test"
       - store_test_results:
           path: test-results
+      - store_artifacts:
+          path: htmlcov
   test37:
     # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
     # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
@@ -33,6 +35,8 @@ jobs:
           command: "make pipeline-test"
       - store_test_results:
           path: test-results
+      - store_artifacts:
+          path: htmlcov
   test38:
     # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
     # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
@@ -47,6 +51,8 @@ jobs:
           command: "make pipeline-test"
       - store_test_results:
           path: test-results
+      - store_artifacts:
+          path: htmlcov
   test39:
     # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
     # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
@@ -61,6 +67,8 @@ jobs:
           command: "make pipeline-test"
       - store_test_results:
           path: test-results
+      - store_artifacts:
+          path: htmlcov
   test310:
     # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
     # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
@@ -75,6 +83,8 @@ jobs:
           command: "make pipeline-test"
       - store_test_results:
           path: test-results
+      - store_artifacts:
+          path: htmlcov
   release:
     # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
     # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
@@ -85,7 +95,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: "run tests"
+          name: "release package"
           command: "make pipeline-release"
 
 # Invoke jobs via workflows
