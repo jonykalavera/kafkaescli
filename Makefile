@@ -1,6 +1,7 @@
 POETRY_VERSION=1.1.12
 test:
-	python -m pytest tests/
+	mkdir test-results
+	python -m pytest --junitxml=test-results/junit.xml tests/
 
 groom:
 	isort kafkescli/ tests/

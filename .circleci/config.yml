@@ -17,6 +17,8 @@ jobs:
       - run:
           name: "run tests with python 3.6"
           command: "make pipeline-test"
+      - store_test_results:
+          path: test-results
   test37:
     # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
     # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
@@ -29,6 +31,8 @@ jobs:
       - run:
           name: "run tests with python 3.7"
           command: "make pipeline-test"
+      - store_test_results:
+          path: test-results
   test38:
     # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
     # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
@@ -41,6 +45,8 @@ jobs:
       - run:
           name: "run tests with python 3.8"
           command: "make pipeline-test"
+      - store_test_results:
+          path: test-results
   test39:
     # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
     # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
@@ -53,6 +59,8 @@ jobs:
       - run:
           name: "run tests with python 3.9"
           command: "make pipeline-test"
+      - store_test_results:
+          path: test-results
   test310:
     # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
     # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
@@ -65,7 +73,8 @@ jobs:
       - run:
           name: "run tests with python 3.10"
           command: "make pipeline-test"
-
+      - store_test_results:
+          path: test-results
   release:
     # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
     # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
