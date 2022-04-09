@@ -1,8 +1,6 @@
 POETRY_VERSION=1.1.12
 test:
-	pylint kafkescli/ tests/
 	pytest tests/
-	mypy kafkescli/ tests/
 
 groom:
 	isort kafkescli/ tests/

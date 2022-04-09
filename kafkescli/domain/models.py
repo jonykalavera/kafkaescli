@@ -1,6 +1,12 @@
 """ App Models
 """
-from pydantic import UUID4, BaseConfig, BaseModel, fields, types
+from functools import cached_property
+from typing import Optional
+
+from pydantic import UUID4, BaseConfig, BaseModel, fields
+from pydantic.utils import import_string
+
+from kafkescli.domain.types import JSONSerializable
 
 
 class Model(BaseModel):
@@ -8,28 +14,48 @@ class Model(BaseModel):
 
     class Config:
         use_enum_values = True
+        extra = "ignore"
 
 
-class DataModel(Model):
+class UUIDModel(Model):
     uuid: UUID4
 
 
 class Config(Model):
-    bootstrap_servers: list[str] = ["localhost:9092"]
-
-ImportString = str
-
-class Middleware(Model):
-    import_string: str = fields.Field()
+    bootstrap_servers: str = "localhost:9092"
+    middleware_classes: list[str] = fields.Field(default_factory=list)
 
 
-
-class Profile(Model):
+class ConfigProfile(Model):
     name: str
     config: Config
-    middleware: list[Middleware]
 
 
 class ConfigFile(BaseConfig):
-    default_profile: str = "default"
-    profiles: list[Profile] = [Profile(name="default", config=Config())]
+    profiles: list[ConfigProfile] = fields.Field(
+        default_factory=lambda: [ConfigProfile(name="default", config=Config())]
+    )
+
+
+class PayloadMetadata(Model):
+    topic: str
+    partition: int
+    offset: int
+    timestamp: int
+
+    class Config:
+        extra = "allow"
+
+
+class Payload(Model):
+    metadata: PayloadMetadata
+    message: JSONSerializable
+    key: Optional[JSONSerializable] = fields.Field(default=None)
+
+
+class ConsumerPayload(Payload):
+    """Consumer Payload"""
+
+
+class ProducerPayload(Payload):
+    """Producer Payload"""

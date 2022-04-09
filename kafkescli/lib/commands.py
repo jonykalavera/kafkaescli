@@ -1,15 +1,14 @@
 """ App Commands
 """
 import asyncio
-from abc import ABC, abstractmethod
-from functools import cached_property, partial
+from abc import ABC, ABCMeta, abstractmethod
 from inspect import isasyncgen
 
 from pydantic import BaseModel
 from result import Result
 
 
-class BaseCommand(ABC, BaseModel):
+class Command(BaseModel, metaclass=ABCMeta):
     """ """
 
     @abstractmethod
@@ -17,7 +16,7 @@ class BaseCommand(ABC, BaseModel):
         """ """
 
 
-class AsyncCommand(ABC, BaseCommand):
+class AsyncCommand(Command, metaclass=ABCMeta):
     def _handle_asyncgen(self, ait):
         ait = ait.__aiter__()
 
