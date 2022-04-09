@@ -19,18 +19,13 @@ install:
 	poetry install
 
 docker-build: build
-	@docker build -t kafkescli --build-arg .
+	@docker build -t kafkescli: .
 
 docker-run:
 	docker run -it --rm --name kafkescli kafkescli
 
-pipeline-test:
-	$(MAKE) install
-	$(MAKE) groom
-	$(MAKE) test
+pipeline-test: install-poetry install test
 
-pipeline-build:
-	$(MAKE) build
-
-pipeline-release:
-	echo 'TODO';
+pipeline-release.%: install-poetry install groom build
+	poetry version $*
+	git commit -am "bump version: $$(poetry version)"
