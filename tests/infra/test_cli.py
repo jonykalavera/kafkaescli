@@ -1,5 +1,4 @@
 import pytest
-
 from kafkaescli.infra import cli
 
 

@@ -32,5 +32,15 @@ docker-run:
 pipeline-test: install-poetry pip-install test
 
 pipeline-release.%: install-poetry pip-install groom build
-	poetry version $*
-	git commit -am "bump version: $$(poetry version)"
+	poetry version $* && git commit -am "bump patch version: $$(poetry version -s)"
+
+pipeline-release-minor: install-poetry pip-install groom build
+	poetry version minor
+	git commit -am "bump minor version: $$(poetry version -s)"
+
+pipeline-release-major: install-poetry pip-install groom build
+	poetry version major
+	git commit -am "bump major version: $$(poetry version -s)"
+
+pipeline-build-docs:
+	cd docs/ && make html
