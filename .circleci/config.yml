@@ -84,4 +84,8 @@ jobs:
 workflows:
   run-tests:
     jobs:
+      - test36
+      - test37
+      - test38
+      - test39
       - test310
