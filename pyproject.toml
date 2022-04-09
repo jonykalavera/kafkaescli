@@ -18,7 +18,7 @@ description = ""
 authors = ["Jony Kalavera <mr.jony@gmail.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.9"
 pydantic = "^1.9.0"
 aiokafka = "^0.7.2"
 result = {version = "^0.7.0", allow-prereleases = true}

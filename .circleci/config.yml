@@ -108,6 +108,9 @@ workflows:
       - test39
       - test310
       - hold: # <<< A job that will require manual approval in the CircleCI web application.
+          filters:
+              branches:
+                  only: /main/
           type: approval # <<< This key-value pair will set your workflow to a status of "On Hold"
           requires: # We only run the "hold" job when tests have succeeded
            - test310
