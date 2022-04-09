@@ -1,4 +1,6 @@
+SHELL := /bin/bash
 POETRY_VERSION=1.1.12
+
 test:
 	mkdir test-results
 	python -m pytest --cov --junitxml=test-results/junit.xml tests/

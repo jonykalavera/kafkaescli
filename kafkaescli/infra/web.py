@@ -1,3 +1,4 @@
+import pkg_resources
 from typing import Any
 
 from fastapi import FastAPI, HTTPException
@@ -10,7 +11,10 @@ app = FastAPI()
 
 @app.get("/")
 def read_root():
-    return {"Hello": "Kafkes"}
+    return {
+        "name": "KafkaesCLI",
+        "version": pkg_resources.get_distribution("kafkaescli").version
+    }
 
 
 async def respond_with_error(err: BaseException):
