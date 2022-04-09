@@ -85,7 +85,7 @@ jobs:
           path: test-results
       - store_artifacts:
           path: htmlcov
-  release:
+  release-patch:
     # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
     # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
     docker:
@@ -96,7 +96,18 @@ jobs:
       - checkout
       - run:
           name: "release package"
-          command: "make pipeline-release"
+          command: "make pipeline-release.patch"
+  docs-build:
+    docker:
+      - image: cimg/python:3.10
+    steps:
+      - checkout
+      - run:
+          name: Build docs
+          command: "cd docs/ && make html"
+      - persist_to_workspace:
+          root: docs/_build
+          paths: html
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
@@ -107,16 +118,21 @@ workflows:
       - test38
       - test39
       - test310
+      - docs-build:
+          requires:
+            - test310
+            - test39
       - hold: # <<< A job that will require manual approval in the CircleCI web application.
           filters:
-              branches:
-                  only: /main/
+            branches:
+              only: /main/
           type: approval # <<< This key-value pair will set your workflow to a status of "On Hold"
           requires: # We only run the "hold" job when tests have succeeded
            - test310
            - test39
+           - docs-build
       # On approval of the `hold` job, any successive job that requires the `hold` job will run.
       # In this case, a user is manually triggering the deploy job.
-      - release:
+      - release-patch:
           requires:
             - hold
