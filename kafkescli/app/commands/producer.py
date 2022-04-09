@@ -20,11 +20,11 @@ from aiokafka.errors import (
 )
 from pydantic.utils import import_string
 
-from kafkescli.domain.models import Config, ProducerPayload
-from kafkescli.domain.types import JSONSerializable
-from kafkescli.lib.commands import AsyncCommand
-from kafkescli.lib.middleware import MiddlewarePipeline
-from kafkescli.lib.results import as_result
+from kafkaescli.domain.models import Config, ProducerPayload
+from kafkaescli.domain.types import JSONSerializable
+from kafkaescli.lib.commands import AsyncCommand
+from kafkaescli.lib.middleware import MiddlewarePipeline
+from kafkaescli.lib.results import as_result
 
 if TYPE_CHECKING:
     from aiokafka.structs import RecordMetadata

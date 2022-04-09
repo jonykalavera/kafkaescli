@@ -5,9 +5,9 @@ from avro.datafile import DataFileReader, DataFileWriter
 from avro.io import DatumReader, DatumWriter
 import avro.schema
 
-from kafkescli.domain.models import ConsumerPayload
-from kafkescli.domain.types import JSONSerializable
-from kafkescli.lib.middleware import Middleware, AsyncMiddleware
+from kafkaescli.domain.models import ConsumerPayload
+from kafkaescli.domain.types import JSONSerializable
+from kafkaescli.lib.middleware import Middleware, AsyncMiddleware
 
 def deserialize(value):
     """ De-serializes AVRO encoded binary string and yield records.

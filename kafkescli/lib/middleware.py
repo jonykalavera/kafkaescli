@@ -8,7 +8,7 @@ from typing import Any, Callable, ClassVar, Iterator, Optional, TypeVar
 
 from pydantic.utils import import_string
 
-from kafkescli.domain import models, types
+from kafkaescli.domain import models, types
 
 
 class MiddlewareInterface(ABC):

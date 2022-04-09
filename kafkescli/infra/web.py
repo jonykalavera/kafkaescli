@@ -2,8 +2,8 @@ from typing import Any
 
 from fastapi import FastAPI, HTTPException
 
-from kafkescli.app import commands
-from kafkescli.domain import models
+from kafkaescli.app import commands
+from kafkaescli.domain import models
 
 app = FastAPI()
 

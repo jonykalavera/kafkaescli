@@ -9,8 +9,8 @@ import typer
 import uvicorn
 from typer.params import Option
 
-from kafkescli.app import commands
-from kafkescli.domain import constants, models
+from kafkaescli.app import commands
+from kafkaescli.domain import constants, models
 
 app = typer.Typer()
 config = models.Config()
@@ -111,7 +111,7 @@ def runserver(
 ):
     sys.exit(
         uvicorn.run(
-            "kafkescli.infra.web:app",
+            "kafkaescli.infra.web:app",
             host=host,
             port=port,
             reload=autoreload,
@@ -134,7 +134,7 @@ def main(
         default=None, envvar="KFK_MIDDLEWARE_CLASSES"
     ),
 ):
-    """KafkesCLI, magical kafka command line interface."""
+    """Kafkaescli, magical kafka command line interface."""
     global config
     overrides = dict(
         bootstrap_servers=bootstrap_servers,

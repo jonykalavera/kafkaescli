@@ -6,8 +6,8 @@ test:
 	python -m coverage html  # open htmlcov/index.html in a browser
 
 groom:
-	isort kafkescli/ tests/
-	black kafkescli/ tests/
+	isort kafkaescli/ tests/
+	black kafkaescli/ tests/
 
 
 install-poetry:
@@ -24,10 +24,10 @@ pip-install:
 	pip install -r requirements.txt
 
 docker-build: build
-	@docker build -t kafkescli: .
+	@docker build -t kafkaescli: .
 
 docker-run:
-	docker run -it --rm --name kafkescli kafkescli
+	docker run -it --rm --name kafkaescli kafkaescli
 
 pipeline-test: install-poetry pip-install test
 

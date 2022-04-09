@@ -12,7 +12,7 @@ python_version = "3.10"
 ignore_missing_imports = true
 
 [tool.poetry]
-name = "kafkescli"
+name = "kafkaescli"
 version = "0.1.0"
 description = ""
 authors = ["Jony Kalavera <mr.jony@gmail.com>"]

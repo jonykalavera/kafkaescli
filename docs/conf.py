@@ -17,7 +17,7 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'kafkescli'
+project = 'kafkaescli'
 copyright = '2022, jonykalavera'
 author = 'jonykalavera'
 

@@ -1,3 +1,3 @@
-from kafkescli.app.commands.config import GetConfigCommand
-from kafkescli.app.commands.consumer import ConsumeCommand
-from kafkescli.app.commands.producer import ProduceCommand
+from kafkaescli.app.commands.config import GetConfigCommand
+from kafkaescli.app.commands.consumer import ConsumeCommand
+from kafkaescli.app.commands.producer import ProduceCommand

@@ -1,7 +1,7 @@
 {
     "cSpell.words": [
         "aiokafka",
-        "kafkescli"
+        "kafkaescli"
     ],
     "python.formatting.provider": "black"
 }
