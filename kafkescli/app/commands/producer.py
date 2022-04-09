@@ -2,6 +2,7 @@
 
 """
 import asyncio
+import json
 import logging
 from functools import cached_property
 from typing import TYPE_CHECKING, AsyncIterator, Optional
@@ -19,9 +20,9 @@ from aiokafka.errors import (
 )
 from pydantic.utils import import_string
 
-from kafkescli.app.commands.base import AsyncCommand
 from kafkescli.domain.models import Config, ProducerPayload
 from kafkescli.domain.types import JSONSerializable
+from kafkescli.lib.commands import AsyncCommand
 from kafkescli.lib.middleware import MiddlewarePipeline
 from kafkescli.lib.results import as_result
 
@@ -45,7 +46,7 @@ AIOKAFKA_EXCEPTIONS = (
 class ProduceCommand(AsyncCommand):
     config: Config
     topic: str
-    messages: list[str]
+    messages: list[JSONSerializable]
     partition: int = 1
 
     async def _call_hook_before_produce(
@@ -56,12 +57,13 @@ class ProduceCommand(AsyncCommand):
             message = await middleware.hook_before_produce(message)
         return message
 
-    async def _produce_message(self, message) -> "RecordMetadata":
+    async def _produce_message(self, message: JSONSerializable) -> "RecordMetadata":
         producer = AIOKafkaProducer(bootstrap_servers=self.config.bootstrap_servers)
         # Get cluster layout and initial topic/partition leadership information
         await producer.start()
         try:
-            output = bytes(message, "utf-8") if isinstance(message, str) else message
+            output = json.dumps(message) if not isinstance(message, bytes) else message
+            output = bytes(output, "utf-8") if not isinstance(output, bytes) else output
             meta = await producer.send_and_wait(
                 self.topic, output, partition=self.partition
             )

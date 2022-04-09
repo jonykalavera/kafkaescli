@@ -1,6 +1,6 @@
 ﻿# KafkesCLI
 
-Kafka CLI tools
+A magical kafka command line interface.
 
 # Install
 

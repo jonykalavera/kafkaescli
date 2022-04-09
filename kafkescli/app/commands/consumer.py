@@ -4,6 +4,7 @@
 import logging
 from dataclasses import asdict
 from typing import TYPE_CHECKING, AsyncIterator, List, Optional
+from uuid import uuid4
 
 import aiohttp
 from aiokafka import AIOKafkaConsumer
@@ -11,10 +12,17 @@ from aiokafka.errors import (
     ConsumerStoppedError,
     IllegalOperation,
     IllegalStateError,
+    KafkaConnectionError,
+    KafkaError,
+    NodeNotReadyError,
     NoOffsetForPartitionError,
     OffsetOutOfRangeError,
     RecordTooLargeError,
+    RequestTimedOutError,
+    StaleMetadata,
     TopicAuthorizationFailedError,
+    UnknownTopicOrPartitionError,
+    UnrecognizedBrokerVersion,
     UnsupportedVersionError,
 )
 from pydantic.fields import Field
@@ -31,6 +39,13 @@ logger = logging.getLogger(__name__)
 
 
 AIOKAFKA_EXCEPTIONS = (
+    KafkaError,
+    KafkaConnectionError,
+    NodeNotReadyError,
+    RequestTimedOutError,
+    UnknownTopicOrPartitionError,
+    UnrecognizedBrokerVersion,
+    StaleMetadata,
     TopicAuthorizationFailedError,
     OffsetOutOfRangeError,
     ConsumerStoppedError,
@@ -49,14 +64,13 @@ class ConsumeCommand(AsyncCommand):
     auto_commit_interval_ms: int = Field(
         title="Autocommit frequency in milliseconds", default=1000
     )
-    auto_offset_reset: str = "earliest"
-    metadata: bool = Field(default=True)
-    webhook: str = Field(default=None)
+    auto_offset_reset: str = "latest"
+    webhook: Optional[str] = Field(default=None)
 
     async def consume_messages(self) -> AsyncIterator["ConsumerRecord"]:
         consumer = AIOKafkaConsumer(
             *self.topics,
-            group_id=self.group_id,
+            group_id=self.group_id or f'kafkescli-{uuid4()}',
             enable_auto_commit=False,
             auto_offset_reset=self.auto_offset_reset,
             bootstrap_servers=self.config.bootstrap_servers,
@@ -85,18 +99,23 @@ class ConsumeCommand(AsyncCommand):
             payload = await middleware.hook_after_consume(payload)
         return payload
 
+    def _mesage_to_payload(self, message: "ConsumerRecord") -> ConsumerPayload:
+        return ConsumerPayload.parse_obj(
+            dict(
+                metadata={
+                    k: v if not isinstance(v, bytes) else v.decode("utf-8", "ignore")
+                    for k, v in asdict(message).items()
+                    if k != "value"
+                },
+                message=message.value,
+            )
+        )
+
     @as_result(ImportError, *AIOKAFKA_EXCEPTIONS)
-    async def execute_async(self) -> AsyncIterator["ConsumerRecord"]:
+    async def execute_async(self) -> AsyncIterator["ConsumerPayload"]:
         async with aiohttp.ClientSession(raise_for_status=True) as session:
             async for msg in self.consume_messages():
-                payload = ConsumerPayload(
-                    **{
-                        k: v
-                        if not isinstance(v, bytes)
-                        else v.decode("utf-8", "ignore")
-                        for k, v in asdict(msg).items()
-                    }
-                )
+                payload = self._mesage_to_payload(msg)
                 logger.debug("consumed: %r", payload)
                 payload = await self._call_middleware_hook(payload=payload)
                 await self._call_webhook(session=session, payload=payload)

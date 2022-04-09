@@ -1,11 +1,12 @@
 """ App Models
 """
-from functools import cached_property
+import base64
 from typing import Optional
+from uuid import uuid4
 
 from pydantic import UUID4, BaseConfig, BaseModel, fields
-from pydantic.utils import import_string
 
+from kafkescli.domain.constants import DEFAULT_BOOTSTRAP_SERVERS
 from kafkescli.domain.types import JSONSerializable
 
 
@@ -17,12 +18,12 @@ class Model(BaseModel):
         extra = "ignore"
 
 
-class UUIDModel(Model):
-    uuid: UUID4
+class DataModel(Model):
+    uuid: UUID4 = fields.Field(default_factory=uuid4)
 
 
 class Config(Model):
-    bootstrap_servers: str = "localhost:9092"
+    bootstrap_servers: str = DEFAULT_BOOTSTRAP_SERVERS
     middleware_classes: list[str] = fields.Field(default_factory=list)
 
 
@@ -32,9 +33,8 @@ class ConfigProfile(Model):
 
 
 class ConfigFile(BaseConfig):
-    profiles: list[ConfigProfile] = fields.Field(
-        default_factory=lambda: [ConfigProfile(name="default", config=Config())]
-    )
+    version: int = 1
+    profiles: list[ConfigProfile] = fields.Field(default_factory=list)
 
 
 class PayloadMetadata(Model):
@@ -51,6 +51,11 @@ class Payload(Model):
     metadata: PayloadMetadata
     message: JSONSerializable
     key: Optional[JSONSerializable] = fields.Field(default=None)
+
+    class Config:
+        json_encoders = {
+            bytes: lambda x: base64.b64encode(x).decode("utf-8"),
+        }
 
 
 class ConsumerPayload(Payload):

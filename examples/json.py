@@ -1,23 +1,23 @@
 import json
-from datetime import date, datetime
-from typing import Union
+from kafkescli.domain.models import ConsumerPayload
+from kafkescli.domain.types import JSONSerializable
+from kafkescli.lib.middleware import Middleware, AsyncMiddleware
 
-from pydantic import BaseModel
-from pydantic.types import UUID4
-from pydantic_factories import ModelFactory
-
-
-def produce(message):
-    message = json.loads(message)
-    return json.dumps(message)
-
-async def async_produce(message):
-    return produce(message=message)
+class JSONMiddleware(Middleware):
+    def hook_before_produce(self, message: JSONSerializable) -> JSONSerializable:
+        return json.loads(str(message))
 
 
-def consume(payload):
-    payload["value"] = json.loads(payload["value"])
-    return payload
+    def hook_after_consume(self, payload: ConsumerPayload) -> ConsumerPayload:
+        payload.message = json.loads(str(payload.message))
+        return payload
 
-async def async_consume(payload):
-    return consume(message=message)
+
+class AsyncJSONMiddleware(AsyncMiddleware):
+    async def hook_before_produce(self, message: JSONSerializable) -> JSONSerializable:
+        return json.loads(str(message))
+
+
+    async def hook_after_consume(self, payload: ConsumerPayload) -> ConsumerPayload:
+        payload.message = json.loads(str(payload.message))
+        return payload

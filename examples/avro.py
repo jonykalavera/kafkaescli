@@ -1,14 +1,13 @@
 """AVRO tools module."""
 import json
 import io
-
-
-# Third Party Library Imports
 from avro.datafile import DataFileReader, DataFileWriter
 from avro.io import DatumReader, DatumWriter
 import avro.schema
 
-
+from kafkescli.domain.models import ConsumerPayload
+from kafkescli.domain.types import JSONSerializable
+from kafkescli.lib.middleware import Middleware, AsyncMiddleware
 
 def deserialize(value):
     """ De-serializes AVRO encoded binary string and yield records.
@@ -58,22 +57,21 @@ def serialize(records, schema_json):
     return result
 
 
-def produce(message):
-    """ Produce avro with embedded schema message given a json message string.
+class AvroMiddleware(AsyncMiddleware):
+    async def hook_before_produce(self, message: JSONSerializable) -> JSONSerializable:
+        schema = json.dumps({
+            "type" : "record",
+            "namespace" : "app.domain",
+            "name" : "Employee",
+            "fields" : [
+                { "name" : "Name" , "type" : "string" },
+                { "name" : "Age" , "type" : "int" }
+            ]
+        })
+        message = serialize([json.loads(str(message))], schema)
+        return message
 
-    Args:
-        message: data as json string.
-    """
-    schema = json.loads(message)
-    message = serialize([message], schema)
-    return message
 
-
-def consume(payload):
-    """ Deserialized avro with embedded schema.
-
-    Args:
-        message: data as json string.
-    """
-    payload["value"] = deserialize_first(payload["value"])
-    return payload
+    async def hook_after_consume(self, payload: ConsumerPayload) -> ConsumerPayload:
+        payload.message = deserialize_first(payload.message)
+        return payload

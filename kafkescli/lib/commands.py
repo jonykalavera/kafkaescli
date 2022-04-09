@@ -4,19 +4,24 @@ import asyncio
 from abc import ABC, ABCMeta, abstractmethod
 from inspect import isasyncgen
 
-from pydantic import BaseModel
 from result import Result
 
+from kafkescli.domain.models import DataModel
 
-class Command(BaseModel, metaclass=ABCMeta):
-    """ """
+
+class CommandInterface(ABC):
+    """Application Command Interface"""
 
     @abstractmethod
     def execute(self) -> Result:
-        """ """
+        """Executes implementation returning a result"""
 
 
-class AsyncCommand(Command, metaclass=ABCMeta):
+class Command(CommandInterface, DataModel):
+    """Application Command base"""
+
+
+class AsyncCommand(Command):
     def _handle_asyncgen(self, ait):
         ait = ait.__aiter__()
 
