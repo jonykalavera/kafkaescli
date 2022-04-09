@@ -101,9 +101,19 @@ jobs:
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
-  run-tests:
+  pull-requests:
     jobs:
       - test37
       - test38
       - test39
       - test310
+      - hold: # <<< A job that will require manual approval in the CircleCI web application.
+          type: approval # <<< This key-value pair will set your workflow to a status of "On Hold"
+          requires: # We only run the "hold" job when tests have succeeded
+           - test310
+           - test39
+      # On approval of the `hold` job, any successive job that requires the `hold` job will run.
+      # In this case, a user is manually triggering the deploy job.
+      - release:
+          requires:
+            - hold
