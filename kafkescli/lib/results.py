@@ -55,6 +55,7 @@ def as_result(
             try:
                 return Ok(await f(*args, **kwargs))
             except exceptions as exc:
+                logger.error("%r", exc)
                 return Err(exc)
 
         return functools.wraps(f)(

@@ -1,6 +1,6 @@
 ﻿# KafkesCLI
 
-Kafka CLI tools
+A magical kafka command line interface.
 
 # Install
 
@@ -20,13 +20,13 @@ kafkescli consume --help
 # consume from hello
 kafkescli consume hello
 # consume from hello with callback function
-kafkescli consume hello --callback tests.json.consume
+kafkescli consume hello --callback examples.json.consume
 # produce to hello, the message: world
 kafkescli produce hello world
 # produce to hello, the message: "world of cli kafka"
 kafkescli produce hello "world of cli kafka"
 # produce to hello, the message: world with callback function
-kafkescli produce hello world --callback tests.json.produce
+kafkescli produce hello world --callback examples.json.produce
 # run producer endpoint
 kafkescli runserver
 # produce to hello, from stdin lines"

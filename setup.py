@@ -6,6 +6,6 @@ setup(
     version='0.1.0',
     packages=['kafkescli'],
     entry_points={
-        'console_scripts': ['kafkescli = kafkescli.main:program.run']
+        'console_scripts': ['kafkescli = kafkescli.infra.cli:app']
     }
 )

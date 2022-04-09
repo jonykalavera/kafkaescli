@@ -1,7 +1,9 @@
 POETRY_VERSION=1.1.12
 test:
-	pylint kafkescli/ tests/
-	pytest tests/
+	mkdir test-results
+	python -m pytest --cov --junitxml=test-results/junit.xml tests/
+	python -m coverage report
+	python -m coverage html  # open htmlcov/index.html in a browser
 
 groom:
 	isort kafkescli/ tests/
@@ -17,8 +19,18 @@ make build:
 install:
 	poetry install
 
+pip-install:
+	poetry export --dev --without-hashes -f requirements.txt -o requirements.txt
+	pip install -r requirements.txt
+
 docker-build: build
-	@docker build -t kafkescli --build-arg .
+	@docker build -t kafkescli: .
 
 docker-run:
 	docker run -it --rm --name kafkescli kafkescli
+
+pipeline-test: install-poetry pip-install test
+
+pipeline-release.%: install-poetry pip-install groom build
+	poetry version $*
+	git commit -am "bump version: $$(poetry version)"

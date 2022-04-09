@@ -2,57 +2,59 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "produce json mocks",
+            "name": "produce json",
             "type": "python",
             "request": "launch",
             "module": "kafkescli",
             "justMyCode": true,
             "args": [
+                "--middleware-classes",
+                "examples.json.JSONMiddleware",
                 "produce",
                 "json",
-                "--callback",
-                "tests.json.produce",
-                "person"
+                "\"{\\\"foo\\\": \\\"bar\\\"}\""
             ]
         },
         {
-            "name": "consume json mocks",
+            "name": "consume json",
             "type": "python",
             "request": "launch",
             "module": "kafkescli",
             "justMyCode": true,
             "args": [
+                "--middleware-classes",
+                "examples.json.JSONMiddleware",
                 "consume",
+                "--metadata",
                 "json",
-                "--callback",
-                "tests.json.consume",
             ]
         },
         {
-            "name": "produce avro mocks",
+            "name": "produce avro",
             "type": "python",
             "request": "launch",
             "module": "kafkescli",
             "justMyCode": true,
             "args": [
+                "--middleware-classes",
+                "examples.avro.AvroMiddleware",
                 "produce",
                 "avro",
-                "--callback",
-                "tests.avro.produce",
-                "emesa.hammer.products.product_created",
+                "\"{\\\"Name\\\": \\\"Carnada\\\", \\\"Age\\\": 5 }\"",
             ]
         },
         {
-            "name": "consume avro mocks",
+            "name": "consume avro",
             "type": "python",
             "request": "launch",
             "module": "kafkescli",
             "justMyCode": true,
             "args": [
+                "--middleware-classes",
+                "examples.avro.AvroMiddleware",
                 "consume",
+                "--metadata",
                 "avro",
-                "--callback",
-                "tests.avro.consume",
             ]
         },
         {

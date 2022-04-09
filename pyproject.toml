@@ -18,12 +18,8 @@ description = ""
 authors = ["Jony Kalavera <mr.jony@gmail.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.10"
-invoke = "^1.6.0"
-python-dotenv = "^0.19.2"
-colorama = "^0.4.4"
+python = "^3.9"
 pydantic = "^1.9.0"
-pydantic-factories = "^1.2.4"
 aiokafka = "^0.7.2"
 result = {version = "^0.7.0", allow-prereleases = true}
 typer = "^0.4.1"
@@ -42,6 +38,9 @@ mypy = "^0.931"
 pytest-faker = "^2.0.0"
 types-requests = "^2.27.9"
 ipdb = "^0.13.9"
+pydantic-factories = "^1.2.7"
+py2puml = {git = "https://github.com/jonykalavera/py2puml.git"}
+pytest-coverage = "^0.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
