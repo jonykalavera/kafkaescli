@@ -103,6 +103,9 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Install dependencies
+          command: make pip-install
+      - run:
           name: Build docs
           command: "cd docs/ && make html"
       - persist_to_workspace:
