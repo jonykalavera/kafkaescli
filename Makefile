@@ -2,6 +2,7 @@ POETRY_VERSION=1.1.12
 test:
 	pylint kafkescli/ tests/
 	pytest tests/
+	mypy kafkescli/ tests/
 
 groom:
 	isort kafkescli/ tests/
@@ -22,3 +23,14 @@ docker-build: build
 
 docker-run:
 	docker run -it --rm --name kafkescli kafkescli
+
+pipeline-test:
+	$(MAKE) install
+	$(MAKE) groom
+	$(MAKE) test
+
+pipeline-build:
+	$(MAKE) build
+
+pipeline-release:
+	echo 'TODO';

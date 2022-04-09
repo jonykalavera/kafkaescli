@@ -8,10 +8,19 @@ import uvicorn
 
 from kafkescli.app import commands
 from kafkescli.domain import models
-from kafkescli.infra.utils import log_error_and_exit
 
 app = typer.Typer()
 config = models.Config()
+
+
+def _log_error_and_exit(error: BaseException):
+    """Log error and exit.
+
+    Args:
+        err (Exception): exception instance.
+    """
+    logger.error("%s", error)
+    sys.exit(-1)
 
 
 def _echo_output(metadata, key, messages):
@@ -34,7 +43,7 @@ def consume(
     result = commands.ConsumeCommand(
         topics=topics, metadata=metadata, webhook=webhook, callback=callback
     ).execute()
-    result.map_err(log_error_and_exit)
+    result.map_err(_log_error_and_exit)
     for msg in result.map(partial(_echo_output, metadata, "value")).unwrap():
         if echo:
             typer.echo(msg)
@@ -74,7 +83,7 @@ def produce(
         messages=_get_messages(stdin=stdin, file=file, messages=messages),
         callback=callback,
     ).execute()
-    result.map_err(log_error_and_exit)
+    result.map_err(_log_error_and_exit)
     for msg in result.map(partial(_echo_output, metadata, "message")).unwrap():
         if echo:
             typer.echo(msg)
@@ -86,10 +95,10 @@ def runserver(
     port: int = 8000,
     reload: bool = False,
     workers: int = 1,
-    log_config: Optional[str] = None,
+    log_config: Optional[str] = 'INFO',
 ):
     sys.exit(
-        uvicorn.run("kafkescli.infra.web:app", host=host, port=port, reload=reload)
+        uvicorn.run("kafkescli.infra.web:app", host=host, port=port, reload=reload, workers=workers, log_config=log_config)
     )
 
 

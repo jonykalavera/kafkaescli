@@ -17,7 +17,7 @@ class BaseCommand(ABC, BaseModel):
         """ """
 
 
-class AsyncCommand(ABC, BaseModel):
+class AsyncCommand(ABC, BaseCommand):
     def _handle_asyncgen(self, ait):
         ait = ait.__aiter__()
 

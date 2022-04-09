@@ -1,21 +1,17 @@
-import json
-from typing import BinaryIO, Optional
-
-from pydantic_avro.avro_to_pydantic import avsc_to_pydantic
-
 """AVRO tools module."""
-# Standard Library Imports
+import json
 import io
 
-import avro.schema
 
 # Third Party Library Imports
 from avro.datafile import DataFileReader, DataFileWriter
-from avro.io import BinaryDecoder, DatumReader, DatumWriter
-from avro_schemas import *
+from avro.io import DatumReader, DatumWriter
+import avro.schema
+
+
 
 def deserialize(value):
-    """De-serializes AVRO encoded binary string and yield records.
+    """ De-serializes AVRO encoded binary string and yield records.
 
     Args:
         value (str): binary string value.
@@ -30,7 +26,7 @@ def deserialize(value):
 
 
 def deserialize_first(value):
-    """Deserialize AVRO encoded binary string and return the first record.
+    """ Deserialize AVRO encoded binary string and return the first record.
 
     Args:
         value (str): binary string value.
@@ -42,7 +38,7 @@ def deserialize_first(value):
 
 
 def serialize(records, schema_json):
-    """Serialize list of records to AVRO encoded binary string.
+    """ Serialize list of records to AVRO encoded binary string.
 
     Args:
         records (list): list of records.
@@ -62,21 +58,22 @@ def serialize(records, schema_json):
     return result
 
 
-
-
-
 def produce(message):
-    code = bytes(avsc_to_pydantic(json.loads(schemas.get_json(message))), "utf-8")
-    filename = '{0}.py'.format(message.replace('.', '__')
-    mdl = eval(compile(code, filename=filename, mode='eval'))
-    class AvroFactory(ModelFactory):
-        __model__ = AvroModel
-    mock = AvroFactory.build().dict()
-    schema = json.dumps(AvroModel.avro_schema())
-    message = serialize([mock], schema)
+    """ Produce avro with embedded schema message given a json message string.
+
+    Args:
+        message: data as json string.
+    """
+    schema = json.loads(message)
+    message = serialize([message], schema)
     return message
 
 
 def consume(payload):
+    """ Deserialized avro with embedded schema.
+
+    Args:
+        message: data as json string.
+    """
     payload["value"] = deserialize_first(payload["value"])
     return payload
