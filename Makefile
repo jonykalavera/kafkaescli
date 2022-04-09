@@ -1,6 +1,6 @@
 POETRY_VERSION=1.1.12
 test:
-	pytest tests/
+	python -m pytest tests/
 
 groom:
 	isort kafkescli/ tests/
