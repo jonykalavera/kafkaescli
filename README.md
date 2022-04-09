@@ -1,6 +1,5 @@
-﻿# KafkesCLI
-
-A magical kafka command line interface.
+﻿
+![KafkesCLI](docs\images\kafkescli-repository-open-graph-template.png)
 
 # Install
 
