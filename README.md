@@ -1,5 +1,5 @@
 ﻿
-![KafkesCLI](docs\images\kafkescli-repository-open-graph-template.png)
+![KafkesCLI](docs/images/kafkescli-repository-open-graph-template.png)
 
 # Install
 
