@@ -17,7 +17,7 @@ install:
 	poetry install
 
 pip-install:
-	poetry export -f requirements.txt -o requirements.txt
+	poetry export --dev -f requirements.txt -o requirements.txt
 	pip install -r requirements.txt
 
 docker-build: build
