@@ -4,8 +4,8 @@ import base64
 from typing import Optional
 from uuid import uuid4
 
-from pydantic import UUID4, BaseConfig, BaseModel, fields
-
+from pydantic import BaseModel, fields
+from pydantic.types import UUID4
 from kafkaescli.domain.constants import DEFAULT_BOOTSTRAP_SERVERS
 from kafkaescli.domain.types import JSONSerializable
 
@@ -32,8 +32,9 @@ class ConfigProfile(Model):
     config: Config
 
 
-class ConfigFile(BaseConfig):
+class ConfigFile(Model):
     version: int = 1
+    default_profile: Optional[str] = None
     profiles: list[ConfigProfile] = fields.Field(default_factory=list)
 
 

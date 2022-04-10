@@ -61,6 +61,28 @@ use `isort`. that's it
 
 I am looking forward to providing the linting settings and checks corresponding to these practices.
 
+# Development Workflow
+
+Pre-requisites
+
+* [Make](https://www.gnu.org/software/make/)
+* [Poetry](https://python-poetry.org/docs/)
+
+Workflow tools
+
+```bash
+# install development dependencies
+$ make install
+# run formatting tools
+$ make groom
+# run tests
+$ make test
+# optional
+$ alias kfk='python -m kafkaescli'
+# docker-compose kafka environment
+$ docker-compose up
+```
+
 ---
 
-This document was ~~inspired~~ shamesly stolen from [py2puml](https://github.com/lucsorel/py2puml/). also some of the readme. Go check it out.
+This document was adapted from [py2puml](https://github.com/lucsorel/py2puml/).

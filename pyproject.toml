@@ -42,7 +42,7 @@ profile = "black"
 # PYLINT SETTINGS                                                            #
 ##############################################################################
 [tool.pylint.messages_control]
-disable = "C0330, C0326, missing-module-docstring, missing-class-docstring, missing-function-docstring, missing-method-docstring, too-few-public-methods"
+disable = "missing-module-docstring, missing-class-docstring, missing-function-docstring, missing-method-docstring, too-few-public-methods"
 
 [tool.pylint.format]
 max-line-length = "119"
@@ -89,6 +89,7 @@ pydantic-factories = "^1.2.7"
 py2puml = {git = "https://github.com/jonykalavera/py2puml.git"}
 Sphinx = "^4.5.0"
 sphinx-rtd-dark-mode = "^1.2.4"
+pylint-pydantic = "^0.1.4"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

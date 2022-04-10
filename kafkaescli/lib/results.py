@@ -7,20 +7,17 @@ import sys
 from asyncio.coroutines import iscoroutinefunction
 from typing import Callable, Type, TypeVar
 
+from result import Err, Ok, Result
+
 if sys.version_info[:2] >= (3, 10):
     from typing import ParamSpec
 else:
     from typing_extensions import ParamSpec
 
-from result import Err, Ok, Result
 
 logger = logging.getLogger(__name__)
 
 
-T = TypeVar("T", covariant=True)  # Success type
-E = TypeVar("E", covariant=True)  # Error type
-U = TypeVar("U")
-F = TypeVar("F")
 P = ParamSpec("P")
 R = TypeVar("R")
 TBE = TypeVar("TBE", bound=BaseException)

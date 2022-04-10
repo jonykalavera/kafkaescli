@@ -1,13 +1,10 @@
-import json
 import logging
 import sys
-import uuid
 from functools import partial
 from typing import Iterator, Optional
 
 import typer
 import uvicorn
-from typer.params import Option
 
 from kafkaescli.app import commands
 from kafkaescli.domain import constants, models
@@ -45,11 +42,11 @@ def _echo_output(
 
 @app.command()
 def consume(
-    topics: list[str] = typer.Argument(..., envvar="KFK_CONSUMER_TOPICS"),
-    metadata: bool = typer.Option(default=False, envvar="KFK_CONSUMER_METADATA"),
-    echo: bool = typer.Option(default=True, envvar="KFK_CONSUMER_ECHO"),
-    group_id: Optional[str] = typer.Option(default=None, envvar="KFK_CONSUMER_GROUP_ID"),
-    webhook: Optional[str] = typer.Option(default=None, envvar="KFK_CONSUMER_WEBHOOK"),
+    topics: list[str] = typer.Argument(..., envvar="KAFKAESCLI_CONSUMER_TOPICS"),
+    metadata: bool = typer.Option(default=False, envvar="KAFKAESCLI_CONSUMER_METADATA"),
+    echo: bool = typer.Option(default=True, envvar="KAFKAESCLI_CONSUMER_ECHO"),
+    group_id: Optional[str] = typer.Option(default=None, envvar="KAFKAESCLI_CONSUMER_GROUP_ID"),
+    webhook: Optional[str] = typer.Option(default=None, envvar="KAFKAESCLI_CONSUMER_WEBHOOK"),
 ):
     result = commands.ConsumeCommand(
         config=config,
@@ -80,12 +77,12 @@ def _get_messages(stdin, file, messages) -> list[str]:
 
 @app.command()
 def produce(
-    topic: str = typer.Argument(..., envvar="KFK_PRODUCER_TOPIC"),
-    messages: Optional[list[str]] = typer.Argument(None, envvar="KFK_PRODUCER_MESSAGES"),
-    file: Optional[str] = typer.Option(None, envvar="KFK_PRODUCER_FILE"),
-    stdin: bool = typer.Option(False, envvar="KFK_PRODUCER_STDIN"),
-    metadata: bool = typer.Option(True, envvar="KFK_PRODUCER_METADATA"),
-    echo: bool = typer.Option(True, envvar="KFK_PRODUCER_ECHO"),
+    topic: str = typer.Argument(..., envvar="KAFKAESCLI_PRODUCER_TOPIC"),
+    messages: Optional[list[str]] = typer.Argument(None, envvar="KAFKAESCLI_PRODUCER_MESSAGES"),
+    file: Optional[str] = typer.Option(None, envvar="KAFKAESCLI_PRODUCER_FILE"),
+    stdin: bool = typer.Option(False, envvar="KAFKAESCLI_PRODUCER_STDIN"),
+    metadata: bool = typer.Option(True, envvar="KAFKAESCLI_PRODUCER_METADATA"),
+    echo: bool = typer.Option(True, envvar="KAFKAESCLI_PRODUCER_ECHO"),
 ):
     global config
     result = commands.ProduceCommand(
@@ -99,11 +96,11 @@ def produce(
 
 @app.command()
 def runserver(
-    host: str = typer.Option("localhost", envvar="KFK_SERVER_HOST"),
-    port: int = typer.Option(8000, envvar="KFK_SERVER_PORT"),
-    autoreload: bool = typer.Option(False, envvar="KFK_SERVER_AUTORELOAD"),
-    workers: Optional[int] = typer.Option(None, envvar="KFK_SERVER_WORKERS"),
-    log_config: Optional[str] = typer.Option("INFO", envvar="KFK_SEVER_LOG_INFO"),
+    host: str = typer.Option("localhost", envvar="KAFKAESCLI_SERVER_HOST"),
+    port: int = typer.Option(8000, envvar="KAFKAESCLI_SERVER_PORT"),
+    autoreload: bool = typer.Option(False, envvar="KAFKAESCLI_SERVER_AUTORELOAD"),
+    workers: Optional[int] = typer.Option(None, envvar="KAFKAESCLI_SERVER_WORKERS"),
+    log_config: Optional[str] = typer.Option("INFO", envvar="KAFKAESCLI_SEVER_LOG_INFO"),
 ):
     sys.exit(
         uvicorn.run(
@@ -119,10 +116,14 @@ def runserver(
 
 @app.callback()
 def main(
-    profile: Optional[str] = typer.Option(default="default", envvar="KFK_PROFILE"),
-    config_file_path: str = typer.Option(default=constants.DEFAULT_CONFIG_FILE_PATH, envvar="KFK_CONFIG_FILE_PATH"),
-    bootstrap_servers: str = typer.Option(default=constants.DEFAULT_BOOTSTRAP_SERVERS, envvar="KFK_BOOTSTRAP_SERVERS"),
-    middleware: Optional[list[str]] = typer.Option(default=None, envvar="KFK_MIDDLEWARE"),
+    profile: Optional[str] = typer.Option(default="default", envvar="KAFKAESCLI_PROFILE"),
+    config_file_path: str = typer.Option(
+        default=None, envvar="KAFKAESCLI_CONFIG_FILE_PATH"
+    ),
+    bootstrap_servers: str = typer.Option(
+        default=constants.DEFAULT_BOOTSTRAP_SERVERS, envvar="KAFKAESCLI_BOOTSTRAP_SERVERS"
+    ),
+    middleware: Optional[list[str]] = typer.Option(default=None, envvar="KAFKAESCLI_MIDDLEWARE"),
 ):
     """Kafkaescli, magical kafka command line interface."""
     global config

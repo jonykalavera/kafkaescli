@@ -1,4 +1,5 @@
 from functools import cached_property
+import json
 from typing import Optional
 
 from pydantic import fields
@@ -11,16 +12,20 @@ from kafkaescli.lib.results import as_result
 
 class GetConfigCommand(Command):
     profile_name: Optional[str] = None
-    config_file_path: str = DEFAULT_CONFIG_FILE_PATH
+    config_file_path: Optional[str] = None
 
     def get_config_file(self) -> ConfigFile:
-        # TODO: load config file
-        return ConfigFile()
+        if not self.config_file_path:
+            return ConfigFile()
+        with open(self.config_file_path) as file:
+            config = ConfigFile(*json.load(file))
+        return config
 
-    @as_result(ValueError)
+    @as_result(ValueError, json.JSONDecodeError, FileNotFoundError)
     def execute(self) -> Config:
         config_file = self.get_config_file()
-        if self.profile_name is None:
+        profile_name = self.profile_name or config_file.default_profile
+        if profile_name is None:
             return Config()
         for profile in config_file.profiles:
             if profile.name == self.profile_name:

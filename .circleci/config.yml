@@ -2,7 +2,6 @@
 # See: https://circleci.com/docs/2.0/configuration-reference
 version: 2.1
 
-# Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
   build:
@@ -20,11 +19,8 @@ jobs:
           name: "Push branch docker image"
           command: make docker-push
   test:
-    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
-    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
     docker:
       - image: cimg/python:3.10
-    # Add steps to the job
     # See: https://circleci.com/docs/2.0/configuration-reference/#steps
     steps:
       - checkout
@@ -39,12 +35,8 @@ jobs:
       - store_artifacts:
           path: htmlcov
   release-patch:
-    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
-    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
     docker:
       - image: cimg/python:3.10
-    # Add steps to the job
-    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
     steps:
       - checkout
       - run:
@@ -64,9 +56,9 @@ jobs:
           command: "cd docs/ && make html"
       - persist_to_workspace:
           root: docs/_build
-          paths: html
+          paths:
+          - html
 
-# Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
   pull-requests:
@@ -78,17 +70,15 @@ workflows:
       - docs:
           requires:
             - test
-      - hold: # <<< A job that will require manual approval in the CircleCI web application.
+      - hold:
           filters:
             tags:
               only: /^\d+\.\d+\.\d+$/
-          type: approval # <<< This key-value pair will set your workflow to a status of "On Hold"
-          requires: # We only run the "hold" job when tests have succeeded
+          type: approval
+          requires:
            - test
            - docs
            - build
-      # On approval of the `hold` job, any successive job that requires the `hold` job will run.
-      # In this case, a user is manually triggering the deploy job.
       - release-patch:
           requires:
             - hold

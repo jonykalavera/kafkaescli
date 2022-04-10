@@ -18,7 +18,7 @@ pip install git+https://github.com/jonykalavera/kafkaescli.git
 kafkaescli consume hello
 # consume from `hello` showing metadata
 kafkaescli consume hello --metadata
-# produce totopic `hello`
+# produce topic `hello`
 kafkaescli produce hello world
 # produce longer strings
 kafkaescli produce hello "world of kafka"
@@ -32,7 +32,7 @@ kafkaescli produce hello json --middleware examples.json.JSONMiddleware
 kafkaescli consume hello --middleware examples.json.JSONMiddleware
 # run a producer REST endpoint
 kafkaescli runserver
-# post consumed messages to WEBHOOK
+# POST consumed messages to WEBHOOK
 kafkaescli consume hello --metadata --webhook https://myendpoint.example.com
 # For more details see
 kafkaescli --help
@@ -44,11 +44,3 @@ kafkaescli --help
 
 Pull-requests are welcome and will be processed on a best-effort basis.
 Follow the [contributing guide](CONTRIBUTING.md).
-
-# Development
-
-```sh
-# install delopment dependencies
-$ make install
-$ alias kfk='python -m kafkaescli'
-```

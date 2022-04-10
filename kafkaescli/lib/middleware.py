@@ -1,10 +1,8 @@
 import asyncio
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from functools import cached_property, lru_cache
-from inspect import isabstract
-from os import stat
-from typing import Any, Callable, ClassVar, Iterator, Optional, TypeVar
+from functools import cached_property
+from typing import Any, Callable, Coroutine, Optional, TypeVar, Union
 
 from pydantic.utils import import_string
 
@@ -41,9 +39,10 @@ class AsyncMiddleware(Middleware):
 
 
 Bundle = TypeVar("Bundle")
+HookCallback = Union[Callable[[Bundle], Coroutine[Bundle, None, None]], Callable[[Bundle], Bundle]]
 
 
-async def _execute_hook_callback(callback: Callable[[Bundle], Bundle], bundle: Bundle) -> Bundle:
+async def _execute_hook_callback(callback: HookCallback, bundle: Bundle) -> Bundle:
     """Middleware hook_method attribute is executed for each middleware in order passing the bundled object."""
     if asyncio.iscoroutinefunction(callback):
         bundle = await callback(bundle)

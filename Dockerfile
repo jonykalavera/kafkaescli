@@ -7,4 +7,4 @@ WORKDIR /code
 ADD ./dist ./dist
 RUN pip install "/code/dist/kafkaescli-${KAFKAESCLI_VERSION}-py3-none-any.whl"
 
-CMD [ "python", "-m", "kafkaescli" ]
+CMD [ "python", "-m", "kafkaescli", "runserver"]
