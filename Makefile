@@ -1,6 +1,9 @@
 SHELL := /bin/bash
 POETRY_VERSION=1.1.12
 
+lint:
+	mypy kafkaescli/ tests/
+
 test:
 	mkdir -p test-results
 	pytest --cov=kafkaescli --junitxml=test-results/junit.xml tests/

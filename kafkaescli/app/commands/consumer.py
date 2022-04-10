@@ -7,14 +7,13 @@ from typing import TYPE_CHECKING, AsyncIterator, List, Optional
 from uuid import uuid4
 
 import aiohttp
-
 from pydantic.fields import Field
 
 from kafkaescli.domain.models import Config, ConsumerPayload
+from kafkaescli.lib import kafka
 from kafkaescli.lib.commands import AsyncCommand
 from kafkaescli.lib.middleware import MiddlewarePipeline
 from kafkaescli.lib.results import as_result
-from kafkaescli.lib import kafka
 
 if TYPE_CHECKING:
     from aiokafka.structs import ConsumerRecord

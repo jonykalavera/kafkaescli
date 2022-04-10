@@ -1,6 +1,7 @@
-from dataclasses import asdict
 import json
+from dataclasses import asdict
 from typing import TYPE_CHECKING, AsyncIterator, List, Optional
+
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 from aiokafka.errors import (
     ConsumerStoppedError,
@@ -87,7 +88,9 @@ async def consume_messages(
         await consumer.stop()
 
 
-async def produce_message(bootstrap_servers, topic, value: bytes, key: Optional[bytes], partition=1) -> ProducerPayload:
+async def produce_message(
+    bootstrap_servers, topic, value: bytes, key: Optional[bytes], partition=1
+) -> ProducerPayload:
     producer = AIOKafkaProducer(bootstrap_servers=bootstrap_servers)
     # Get cluster layout and initial topic/partition leadership information
     await producer.start()

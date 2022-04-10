@@ -7,12 +7,13 @@ from typing import AsyncIterator
 
 from kafkaescli.domain.models import Config, ProducerPayload
 from kafkaescli.domain.types import JSONSerializable
+from kafkaescli.lib import kafka
 from kafkaescli.lib.commands import AsyncCommand
 from kafkaescli.lib.middleware import MiddlewarePipeline
 from kafkaescli.lib.results import as_result
-from kafkaescli.lib import kafka
 
 logger = logging.getLogger(__name__)
+
 
 class ProduceCommand(AsyncCommand):
     config: Config
@@ -30,7 +31,7 @@ class ProduceCommand(AsyncCommand):
             topic=self.topic,
             bootstrap_servers=self.config.bootstrap_servers,
             value=self._get_producer_value(message=message),
-            key=None
+            key=None,
         )
         logger.debug("command: %r, output: %r", self.dict(), payload)
         return payload

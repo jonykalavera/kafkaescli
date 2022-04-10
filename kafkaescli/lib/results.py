@@ -49,7 +49,8 @@ def as_result(
 
         async def async_wrapper(*args: P.args, **kwargs: P.kwargs) -> Result[R, TBE]:
             try:
-                return Ok(await f(*args, **kwargs))
+                returned_value: R = await f(*args, **kwargs)
+                return Ok(returned_value)
             except exceptions as exc:
                 logger.error("%r", exc)
                 return Err(exc)

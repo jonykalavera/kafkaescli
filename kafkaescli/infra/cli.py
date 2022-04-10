@@ -98,28 +98,26 @@ def produce(
 def runserver(
     host: str = typer.Option("localhost", envvar="KAFKAESCLI_SERVER_HOST"),
     port: int = typer.Option(8000, envvar="KAFKAESCLI_SERVER_PORT"),
-    autoreload: bool = typer.Option(False, envvar="KAFKAESCLI_SERVER_AUTORELOAD"),
+    reload: bool = typer.Option(False, envvar="KAFKAESCLI_SERVER_AUTORELOAD"),
     workers: Optional[int] = typer.Option(None, envvar="KAFKAESCLI_SERVER_WORKERS"),
-    log_config: Optional[str] = typer.Option("INFO", envvar="KAFKAESCLI_SEVER_LOG_INFO"),
+    log_config: Optional[str] = typer.Option(None, envvar="KAFKAESCLI_SEVER_LOG_INFO"),
 ):
     sys.exit(
         uvicorn.run(
             "kafkaescli.infra.web:app",
             host=host,
             port=port,
-            reload=autoreload,
+            reload=reload,
             workers=workers,
-            log_config=log_config,
+            log_config=log_config
         )
     )
 
 
 @app.callback()
 def main(
-    profile: Optional[str] = typer.Option(default="default", envvar="KAFKAESCLI_PROFILE"),
-    config_file_path: str = typer.Option(
-        default=None, envvar="KAFKAESCLI_CONFIG_FILE_PATH"
-    ),
+    profile: Optional[str] = typer.Option(default=None, envvar="KAFKAESCLI_PROFILE"),
+    config_file_path: str = typer.Option(default=None, envvar="KAFKAESCLI_CONFIG_FILE_PATH"),
     bootstrap_servers: str = typer.Option(
         default=constants.DEFAULT_BOOTSTRAP_SERVERS, envvar="KAFKAESCLI_BOOTSTRAP_SERVERS"
     ),
@@ -131,10 +129,10 @@ def main(
         bootstrap_servers=bootstrap_servers,
         middleware_classes=middleware,
     )
-    profile_config: models.Config = (
-        commands.GetConfigCommand(config_file_path=config_file_path, profile=profile)
-        .execute()
-        .map_err(_log_error_and_exit)
-        .unwrap()
-    )
-    config = models.Config(**{**profile_config.dict(), **overrides})
+    result = commands.GetConfigCommand(
+        config_file_path=config_file_path,
+        profile_name=profile,
+        overrides=overrides
+    ).execute()
+    result.map_err(_log_error_and_exit)
+    config = result.unwrap()

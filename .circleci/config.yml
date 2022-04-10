@@ -64,9 +64,6 @@ workflows:
   pull-requests:
     jobs:
       - test
-      - build:
-          requires:
-            - test
       - docs:
           requires:
             - test
@@ -78,7 +75,9 @@ workflows:
           requires:
            - test
            - docs
-           - build
       - release-patch:
+          requires:
+            - hold
+      - build:
           requires:
             - hold

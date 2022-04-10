@@ -2,6 +2,16 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "run server",
+            "type": "python",
+            "request": "launch",
+            "module": "kafkaescli",
+            "justMyCode": true,
+            "args": [
+                "runserver"
+            ]
+        },
+        {
             "name": "produce json",
             "type": "python",
             "request": "launch",

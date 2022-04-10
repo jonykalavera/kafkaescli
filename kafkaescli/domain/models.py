@@ -6,6 +6,7 @@ from uuid import uuid4
 
 from pydantic import BaseModel, fields
 from pydantic.types import UUID4
+
 from kafkaescli.domain.constants import DEFAULT_BOOTSTRAP_SERVERS
 from kafkaescli.domain.types import JSONSerializable
 
