@@ -25,6 +25,10 @@ make build:
 install:
 	poetry install
 
+bump.%:
+	VERSION=$* poetry version $$VERSION && \
+		git commit -am "bump $$VERSION version: $$(poetry version -s)"
+
 pip-install: install-poetry
 	poetry export --dev --without-hashes -f requirements.txt -o requirements.txt
 	pip install -r requirements.txt
@@ -47,8 +51,7 @@ pipeline-test: pip-install test
 pipeline-release.%: pip-install groom build
 	git config --global user.email "ci-build@kafkaescli.pipeline"
 	git config --global user.name "ci-build"
-	VERSION=$* poetry version $$VERSION && \
-		git commit -am "bump $$VERSION version: $$(poetry version -s)"
+	$(MAKE) bump.$*
 
 pipeline-build-docs:
 	cd docs/ && make html
