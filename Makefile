@@ -35,6 +35,7 @@ docker-push:
 docker-run-tests:
 	docker run \
 		-v $(realpath .):/code \
+		--workdir /code \
 		"jonykalavera/kafkaescli:$$(poetry version -s)-$$(git branch --show-current)" \
 		make pip-install test
 
