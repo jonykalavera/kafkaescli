@@ -13,5 +13,5 @@ def consumer_command_mock(mocker):
 def test_consume_hello(consumer_command, mocker):
     topics = ["hello"]
     cli.consume(topics=topics)
-    consumer_command.assert_called_once_with(topics=topics, config=mocker.ANY, webhook=mocker.ANY, group_id=mocker.ANY)
+    consumer_command.assert_called_once_with(topics=topics, config=mocker.ANY, webhook=mocker.ANY, group_id=mocker.ANY, limit=-1)
     consumer_command.execute.assert_called_once_with()
