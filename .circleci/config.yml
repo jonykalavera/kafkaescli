@@ -103,10 +103,19 @@ workflows:
           type: approval
           requires:
            - test
-           - docs-deploy
       - release-patch:
           requires:
             - hold
+  docker:
+    jobs:
+      - docker-build
+      - hold:
+          filters:
+            tags:
+              only: /^\d+\.\d+\.\d+$/
+          type: approval
+          requires:
+           - build
       - release-docker:
           requires:
             - hold
