@@ -4,20 +4,6 @@ version: 2.1
 
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
-  build:
-    docker:
-      - image: cimg/python:3.10
-    steps:
-      - checkout
-      - setup_remote_docker:
-          version: 19.03.13
-          docker_layer_caching: true
-      - run:
-          name: "Build branch docker image"
-          command: make docker-build
-      - run:
-          name: "Push branch docker image"
-          command: make docker-push
   test:
     docker:
       - image: cimg/python:3.10
@@ -43,7 +29,7 @@ jobs:
           name: "release patch"
           command: "make pipeline-release.patch"
 
-  docs:
+  docs-build:
     docker:
       - image: cimg/python:3.10
     steps:
@@ -58,15 +44,49 @@ jobs:
           root: docs/_build
           paths:
           - html
-
+  docs-deploy:
+    docker:
+      - image: node:8.10.0
+    steps:
+      - checkout
+      - attach_workspace:
+          at: docs/_build
+      - run:
+          name: Install and configure dependencies
+          command: |
+            npm install -g --silent gh-pages@2.0.1
+            git config user.email "ci-build@klukas.net"
+            git config user.name "ci-build"
+      - run:
+          name: Deploy docs to gh-pages branch
+          command: gh-pages --dist docs/_build/html
+  build-docker:
+    docker:
+      - image: cimg/python:3.10
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 19.03.13
+          docker_layer_caching: true
+      - run:
+          name: "Build branch docker image"
+          command: make docker-build
+      - run:
+          name: "Push branch docker image"
+          command: make docker-push
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
   pull-requests:
     jobs:
       - test
-      - docs:
+      - docs-build
+      - docs-deploy:
           requires:
             - test
+            - docs-build
+          filters:
+            branches:
+              only: main
       - hold:
           filters:
             tags:
@@ -74,10 +94,10 @@ workflows:
           type: approval
           requires:
            - test
-           - docs
+           - docs-deploy
       - release-patch:
           requires:
             - hold
-      - build:
+      - release-docker:
           requires:
             - hold
