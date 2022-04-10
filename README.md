@@ -13,29 +13,31 @@ pip install git+https://github.com/jonykalavera/kafkaescli.git
 
 # Usage
 
+## Consume
+
 ```bash
-# general help
-kafkaescli --help
-# command help
-kafkaescli consume --help
-# consume from hello
+# consume from `hello`
 kafkaescli consume hello
-# consume from hello with middleware function
-kafkaescli consume hello --middleware examples.json.consume
-# produce to hello, the message: world
+# consume from `hello` showing metadata
+kafkaescli consume hello --metadata
+# produce totopic `hello`
 kafkaescli produce hello world
-# produce to hello, the message: "world of cli kafka"
-kafkaescli produce hello "world of cli kafka"
-# produce to hello, the message: world with middleware function
-kafkaescli produce hello world --middleware examples.json.produce
-# run producer endpoint
-kafkaescli runserver
-# produce to hello, from stdin lines"
+# produce longer strings
+kafkaescli produce hello "world of kafka"
+# produce from stdin per line
 echo "hello world of kfk" | kafkaescli produce hello --stdin
-# consume from hello piped to produce to world
+# produce to topic `world` form the output of a consumer of topic `hello`
 kafkaescli consume hello | kafkaescli produce world --stdin
-# consume from hello showing medadata and post to webhook
+# produce `world` to `hello`, with middleware
+kafkaescli produce hello json --middleware examples.json.JSONMiddleware
+# consume from hello with middleware
+kafkaescli consume hello --middleware examples.json.JSONMiddleware
+# run a producer REST endpoint
+kafkaescli runserver
+# post consumed messages to WEBHOOK
 kafkaescli consume hello --metadata --webhook https://myendpoint.example.com
+# For more details see
+kafkaescli --help
 ```
 
 # Contributions

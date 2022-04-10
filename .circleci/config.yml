@@ -80,12 +80,13 @@ workflows:
             - test
       - hold: # <<< A job that will require manual approval in the CircleCI web application.
           filters:
-            branches:
-              only: /main/
+            tags:
+              only: /^\d+\.\d+\.\d+$/
           type: approval # <<< This key-value pair will set your workflow to a status of "On Hold"
           requires: # We only run the "hold" job when tests have succeeded
            - test
            - docs
+           - build
       # On approval of the `hold` job, any successive job that requires the `hold` job will run.
       # In this case, a user is manually triggering the deploy job.
       - release-patch:
