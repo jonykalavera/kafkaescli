@@ -48,9 +48,7 @@ def consume(
     topics: list[str] = typer.Argument(..., envvar="KFK_CONSUMER_TOPICS"),
     metadata: bool = typer.Option(default=False, envvar="KFK_CONSUMER_METADATA"),
     echo: bool = typer.Option(default=True, envvar="KFK_CONSUMER_ECHO"),
-    group_id: Optional[str] = typer.Option(
-        default=None, envvar="KFK_CONSUMER_GROUP_ID"
-    ),
+    group_id: Optional[str] = typer.Option(default=None, envvar="KFK_CONSUMER_GROUP_ID"),
     webhook: Optional[str] = typer.Option(default=None, envvar="KFK_CONSUMER_WEBHOOK"),
 ):
     result = commands.ConsumeCommand(
@@ -83,9 +81,7 @@ def _get_messages(stdin, file, messages) -> list[str]:
 @app.command()
 def produce(
     topic: str = typer.Argument(..., envvar="KFK_PRODUCER_TOPIC"),
-    messages: Optional[list[str]] = typer.Argument(
-        None, envvar="KFK_PRODUCER_MESSAGES"
-    ),
+    messages: Optional[list[str]] = typer.Argument(None, envvar="KFK_PRODUCER_MESSAGES"),
     file: Optional[str] = typer.Option(None, envvar="KFK_PRODUCER_FILE"),
     stdin: bool = typer.Option(False, envvar="KFK_PRODUCER_STDIN"),
     metadata: bool = typer.Option(True, envvar="KFK_PRODUCER_METADATA"),
@@ -124,21 +120,15 @@ def runserver(
 @app.callback()
 def main(
     profile: Optional[str] = typer.Option(default="default", envvar="KFK_PROFILE"),
-    config_file_path: str = typer.Option(
-        default=constants.DEFAULT_CONFIG_FILE_PATH, envvar="KFK_CONFIG_FILE_PATH"
-    ),
-    bootstrap_servers: str = typer.Option(
-        default=constants.DEFAULT_BOOTSTRAP_SERVERS, envvar="KFK_BOOTSTRAP_SERVERS"
-    ),
-    middleware_classes: Optional[list[str]] = typer.Option(
-        default=None, envvar="KFK_MIDDLEWARE_CLASSES"
-    ),
+    config_file_path: str = typer.Option(default=constants.DEFAULT_CONFIG_FILE_PATH, envvar="KFK_CONFIG_FILE_PATH"),
+    bootstrap_servers: str = typer.Option(default=constants.DEFAULT_BOOTSTRAP_SERVERS, envvar="KFK_BOOTSTRAP_SERVERS"),
+    middleware: Optional[list[str]] = typer.Option(default=None, envvar="KFK_MIDDLEWARE"),
 ):
     """Kafkaescli, magical kafka command line interface."""
     global config
     overrides = dict(
         bootstrap_servers=bootstrap_servers,
-        middleware_classes=middleware_classes,
+        middleware_classes=middleware,
     )
     profile_config: models.Config = (
         commands.GetConfigCommand(config_file_path=config_file_path, profile=profile)

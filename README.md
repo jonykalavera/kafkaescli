@@ -20,14 +20,14 @@ kafkaescli --help
 kafkaescli consume --help
 # consume from hello
 kafkaescli consume hello
-# consume from hello with callback function
-kafkaescli consume hello --callback examples.json.consume
+# consume from hello with middleware function
+kafkaescli consume hello --middleware examples.json.consume
 # produce to hello, the message: world
 kafkaescli produce hello world
 # produce to hello, the message: "world of cli kafka"
 kafkaescli produce hello "world of cli kafka"
-# produce to hello, the message: world with callback function
-kafkaescli produce hello world --callback examples.json.produce
+# produce to hello, the message: world with middleware function
+kafkaescli produce hello world --middleware examples.json.produce
 # run producer endpoint
 kafkaescli runserver
 # produce to hello, from stdin lines"
