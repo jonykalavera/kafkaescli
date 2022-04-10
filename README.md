@@ -13,8 +13,6 @@ pip install git+https://github.com/jonykalavera/kafkaescli.git
 
 # Usage
 
-## Consume
-
 ```bash
 # consume from `hello`
 kafkaescli consume hello
