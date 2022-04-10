@@ -108,14 +108,14 @@ workflows:
             - hold
   docker:
     jobs:
-      - docker-build
+      - build-docker
       - hold:
           filters:
             tags:
               only: /^\d+\.\d+\.\d+$/
           type: approval
           requires:
-           - build
+           - build-docker
       - release-docker:
           requires:
             - hold
