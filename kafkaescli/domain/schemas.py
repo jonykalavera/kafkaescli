@@ -1,6 +1,7 @@
+from typing import List
 from pydantic import fields
 
-from kafkaescli.domain.models import Model, ProducerPayload
+from kafkaescli.domain.models import Config, Model, ProducerPayload
 from kafkaescli.domain.types import JSONSerializable
 
 
@@ -9,14 +10,15 @@ class APISchema(Model):
 
 
 class ProduceParams(APISchema):
-    messages: list[JSONSerializable]
+    messages: List[JSONSerializable]
 
 
 class ProduceResponse(APISchema):
     params: ProduceParams
-    results: list[ProducerPayload] = fields.Field(default_factory=list)
+    results: List[ProducerPayload] = fields.Field(default_factory=list)
 
 
-class ServerRoot(APISchema):
+class ApiRoot(APISchema):
     name: str
     version: str
+    config: Config

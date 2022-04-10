@@ -1,7 +1,7 @@
 import logging
 import sys
 from functools import partial
-from typing import Iterator, Optional
+from typing import Iterator, List, Optional
 
 import typer
 import uvicorn
@@ -42,13 +42,15 @@ def _echo_output(
 
 @app.command()
 def consume(
-    topics: list[str] = typer.Argument(..., envvar="KAFKAESCLI_CONSUMER_TOPICS"),
+    topics: List[str] = typer.Argument(..., envvar="KAFKAESCLI_CONSUMER_TOPICS"),
     metadata: bool = typer.Option(default=False, envvar="KAFKAESCLI_CONSUMER_METADATA"),
     echo: bool = typer.Option(default=True, envvar="KAFKAESCLI_CONSUMER_ECHO"),
     group_id: Optional[str] = typer.Option(default=None, envvar="KAFKAESCLI_CONSUMER_GROUP_ID"),
     webhook: Optional[str] = typer.Option(default=None, envvar="KAFKAESCLI_CONSUMER_WEBHOOK"),
     limit: int = -1,
 ):
+    """ Consume messages from kafka topics.
+    """
     result = commands.ConsumeCommand(
         config=config,
         topics=topics,
@@ -69,7 +71,7 @@ def _get_lines(file_path="-") -> Iterator[str]:
         yield line.strip("\n")
 
 
-def _get_messages(stdin, file, messages) -> list[str]:
+def _get_messages(stdin, file, messages) -> List[str]:
     if stdin:
         messages = list(_get_lines("-"))
     elif file:
@@ -80,12 +82,14 @@ def _get_messages(stdin, file, messages) -> list[str]:
 @app.command()
 def produce(
     topic: str = typer.Argument(..., envvar="KAFKAESCLI_PRODUCER_TOPIC"),
-    messages: Optional[list[str]] = typer.Argument(None, envvar="KAFKAESCLI_PRODUCER_MESSAGES"),
+    messages: Optional[List[str]] = typer.Argument(None, envvar="KAFKAESCLI_PRODUCER_MESSAGES"),
     file: Optional[str] = typer.Option(None, envvar="KAFKAESCLI_PRODUCER_FILE"),
     stdin: bool = typer.Option(False, envvar="KAFKAESCLI_PRODUCER_STDIN"),
     metadata: bool = typer.Option(True, envvar="KAFKAESCLI_PRODUCER_METADATA"),
     echo: bool = typer.Option(True, envvar="KAFKAESCLI_PRODUCER_ECHO"),
 ):
+    """ Produce messages to kafka.
+    """
     global config
     result = commands.ProduceCommand(
         config=config,
@@ -104,6 +108,8 @@ def runserver(
     workers: Optional[int] = typer.Option(None, envvar="KAFKAESCLI_SERVER_WORKERS"),
     log_config: Optional[str] = typer.Option(None, envvar="KAFKAESCLI_SEVER_LOG_INFO"),
 ):
+    """ Run webserver interface.
+    """
     sys.exit(
         uvicorn.run(
             "kafkaescli.infra.web:app",
@@ -123,9 +129,10 @@ def main(
     bootstrap_servers: str = typer.Option(
         default=constants.DEFAULT_BOOTSTRAP_SERVERS, envvar="KAFKAESCLI_BOOTSTRAP_SERVERS"
     ),
-    middleware: Optional[list[str]] = typer.Option(default=None, envvar="KAFKAESCLI_MIDDLEWARE"),
+    middleware: Optional[List[str]] = typer.Option(default=None, envvar="KAFKAESCLI_MIDDLEWARE"),
 ):
-    """Kafkaescli, magical kafka command line interface."""
+    """Kafkaescli, magical kafka command line interface.
+    """
     global config
     overrides = dict(
         bootstrap_servers=bootstrap_servers,

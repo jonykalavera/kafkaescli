@@ -2,7 +2,7 @@ import asyncio
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from functools import cached_property
-from typing import Any, Callable, Coroutine, Optional, TypeVar, Union
+from typing import Any, Callable, Coroutine, Dict, List, Optional, TypeVar, Union
 
 from pydantic.utils import import_string
 
@@ -55,11 +55,11 @@ async def _execute_hook_callback(callback: HookCallback, bundle: Bundle) -> Bund
 class MiddlewarePipeline(MiddlewareInterface):
     """Handles middleware hook execution."""
 
-    middleware_classes: list[str]
-    middleware_class_kwargs: Optional[dict[str, Any]] = None
+    middleware_classes: List[str]
+    middleware_class_kwargs: Optional[Dict[str, Any]] = None
 
     @cached_property
-    def _middleware_layers(self) -> list[Middleware]:
+    def _middleware_layers(self) -> List[Middleware]:
         """Ordered middleware class instances"""
         instances = []
         for doted_path in self.middleware_classes:

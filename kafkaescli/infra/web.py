@@ -1,4 +1,4 @@
-from functools import lru_cache, partial
+from functools import lru_cache
 from typing import AsyncIterator, List, Optional
 
 from fastapi import FastAPI, HTTPException
@@ -8,7 +8,8 @@ from kafkaescli.app import commands
 from kafkaescli.domain import models, schemas, constants, types
 
 app = FastAPI(
-    title=constants.APP_TITLE
+    title=f'{constants.APP_TITLE} API',
+    version=constants.APP_VERSION
 )
 
 
@@ -29,9 +30,10 @@ def load_config(profile_name: Optional[str] = None) -> models.Config:
     return result.unwrap()
 
 
-@app.get("/")
-def read_root() -> schemas.ServerRoot:
-    return schemas.ServerRoot(name=constants.APP_TITLE, version=constants.APP_VERSION)
+@app.get("/", response_model=schemas.ApiRoot)
+def api_root(profile: Optional[str] = None) -> schemas.ApiRoot:
+    config = load_config(profile_name=profile)
+    return schemas.ApiRoot(name=constants.APP_TITLE, version=constants.APP_VERSION, config=config)
 
 
 @app.post("/produce/{topic}", response_model=models.ProducerPayload)
@@ -42,9 +44,9 @@ async def produce(topic: str, message: types.JSONSerializable, profile: Optional
     return StreamingResponse(result.map(_echo_output).unwrap(), media_type="application/json")
 
 
-@app.post("/consume/{topic}", response_model=models.ConsumerPayload)
+@app.post("/consume/", response_model=models.ConsumerPayload)
 async def consume(
-    topic: str,
+    topics: List[str],
     limit: int = 1,
     group_id: Optional[str] = None,
     webhook: Optional[str] = None,
@@ -53,7 +55,7 @@ async def consume(
     config = load_config(profile_name=profile)
     result = commands.ConsumeCommand(
         config=config,
-        topics=[topic],
+        topics=topics,
         webhook=webhook,
         group_id=group_id,
         limit=limit

@@ -3,7 +3,7 @@
 import json
 import logging
 from functools import cached_property
-from typing import AsyncIterator
+from typing import AsyncIterator, List
 
 from kafkaescli.domain.models import Config, ProducerPayload
 from kafkaescli.domain.types import JSONSerializable
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 class ProduceCommand(AsyncCommand):
     config: Config
     topic: str
-    messages: list[JSONSerializable]
+    messages: List[JSONSerializable]
     partition: int = 1
 
     def _get_producer_value(self, message: JSONSerializable) -> bytes:

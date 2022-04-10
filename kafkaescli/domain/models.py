@@ -1,7 +1,7 @@
 """ App Models
 """
 import base64
-from typing import Optional
+from typing import List, Optional
 from uuid import uuid4
 
 from pydantic import BaseModel, fields
@@ -25,7 +25,7 @@ class DataModel(Model):
 
 class Config(Model):
     bootstrap_servers: str = DEFAULT_BOOTSTRAP_SERVERS
-    middleware_classes: list[str] = fields.Field(default_factory=list)
+    middleware_classes: List[str] = fields.Field(default_factory=list)
 
 
 class ConfigProfile(Model):
@@ -36,7 +36,7 @@ class ConfigProfile(Model):
 class ConfigFile(Model):
     version: int = 1
     default_profile: Optional[str] = None
-    profiles: list[ConfigProfile] = fields.Field(default_factory=list)
+    profiles: List[ConfigProfile] = fields.Field(default_factory=list)
 
 
 class PayloadMetadata(Model):
