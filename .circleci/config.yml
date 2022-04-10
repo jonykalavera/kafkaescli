@@ -14,10 +14,10 @@ jobs:
           version: 19.03.13
           docker_layer_caching: true
       - run:
-          name: build and push Docker image
+          name: "Build branch docker image"
           command: make docker-build
       - run:
-          name: push Docker image
+          name: "Push branch docker image"
           command: make docker-push
   test:
     # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
@@ -28,8 +28,11 @@ jobs:
     # See: https://circleci.com/docs/2.0/configuration-reference/#steps
     steps:
       - checkout
+      - setup_remote_docker:
+          version: 19.03.13
+          docker_layer_caching: true
       - run:
-          name: "run tests with python 3.10"
+          name: "run tests"
           command: "make pipeline-test"
       - store_test_results:
           path: test-results

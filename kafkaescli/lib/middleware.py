@@ -13,51 +13,37 @@ from kafkaescli.domain import models, types
 
 class MiddlewareInterface(ABC):
     @abstractmethod
-    def hook_before_produce(
-        self, message: types.JSONSerializable
-    ) -> types.JSONSerializable:
+    def hook_before_produce(self, message: types.JSONSerializable) -> types.JSONSerializable:
         """Hook custom logic to producing a message."""
         return message
 
     @abstractmethod
-    def hook_after_consume(
-        self, payload: models.ConsumerPayload
-    ) -> models.ConsumerPayload:
+    def hook_after_consume(self, payload: models.ConsumerPayload) -> models.ConsumerPayload:
         return payload
 
 
 class Middleware(MiddlewareInterface):
-    def hook_before_produce(
-        self, message: types.JSONSerializable
-    ) -> types.JSONSerializable:
+    def hook_before_produce(self, message: types.JSONSerializable) -> types.JSONSerializable:
         """serialize the message to be produced"""
         return message
 
-    def hook_after_consume(
-        self, payload: models.ConsumerPayload
-    ) -> models.ConsumerPayload:
+    def hook_after_consume(self, payload: models.ConsumerPayload) -> models.ConsumerPayload:
         return payload
 
 
 class AsyncMiddleware(Middleware):
-    async def hook_before_produce(
-        self, message: types.JSONSerializable
-    ) -> types.JSONSerializable:
+    async def hook_before_produce(self, message: types.JSONSerializable) -> types.JSONSerializable:
         """serialize the message to be produced"""
         return message
 
-    async def hook_after_consume(
-        self, payload: models.ConsumerPayload
-    ) -> models.ConsumerPayload:
+    async def hook_after_consume(self, payload: models.ConsumerPayload) -> models.ConsumerPayload:
         return payload
 
 
 Bundle = TypeVar("Bundle")
 
 
-async def _execute_hook_callback(
-    callback: Callable[[Bundle], Bundle], bundle: Bundle
-) -> Bundle:
+async def _execute_hook_callback(callback: Callable[[Bundle], Bundle], bundle: Bundle) -> Bundle:
     """Middleware hook_method attribute is executed for each middleware in order passing the bundled object."""
     if asyncio.iscoroutinefunction(callback):
         bundle = await callback(bundle)
@@ -83,9 +69,7 @@ class MiddlewarePipeline(MiddlewareInterface):
             instances.append(instance)
         return instances
 
-    async def _execute_middleware_hook(
-        self, hook_method: str, bundle: Bundle
-    ) -> Bundle:
+    async def _execute_middleware_hook(self, hook_method: str, bundle: Bundle) -> Bundle:
         """Middleware hook_method attribute is executed for each middleware layer passing the bundle object.
 
         Args:
@@ -97,9 +81,7 @@ class MiddlewarePipeline(MiddlewareInterface):
             bundle = await _execute_hook_callback(callback=callback, bundle=bundle)
         return bundle
 
-    async def hook_before_produce(
-        self, message: types.JSONSerializable
-    ) -> types.JSONSerializable:
+    async def hook_before_produce(self, message: types.JSONSerializable) -> types.JSONSerializable:
         """Hook before producing messages
 
         Args:
@@ -109,9 +91,7 @@ class MiddlewarePipeline(MiddlewareInterface):
         """
         return await self._execute_middleware_hook("hook_before_produce", message)
 
-    async def hook_after_consume(
-        self, payload: models.ConsumerPayload
-    ) -> models.ConsumerPayload:
+    async def hook_after_consume(self, payload: models.ConsumerPayload) -> models.ConsumerPayload:
         """Hook after consuming messages
 
         Args:

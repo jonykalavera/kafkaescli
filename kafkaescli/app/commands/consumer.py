@@ -61,9 +61,7 @@ class ConsumeCommand(AsyncCommand):
     config: Config
     topics: List[str]
     group_id: Optional[str] = Field(default=None)
-    auto_commit_interval_ms: int = Field(
-        title="Autocommit frequency in milliseconds", default=1000
-    )
+    auto_commit_interval_ms: int = Field(title="Autocommit frequency in milliseconds", default=1000)
     auto_offset_reset: str = "latest"
     webhook: Optional[str] = Field(default=None)
 

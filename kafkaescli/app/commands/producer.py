@@ -49,9 +49,7 @@ class ProduceCommand(AsyncCommand):
     messages: list[JSONSerializable]
     partition: int = 1
 
-    async def _call_hook_before_produce(
-        self, message: JSONSerializable
-    ) -> JSONSerializable:
+    async def _call_hook_before_produce(self, message: JSONSerializable) -> JSONSerializable:
         if self.config.middleware_classes:
             middleware = MiddlewarePipeline(self.config.middleware_classes)
             message = await middleware.hook_before_produce(message)
@@ -64,9 +62,7 @@ class ProduceCommand(AsyncCommand):
         try:
             output = json.dumps(message) if not isinstance(message, bytes) else message
             output = bytes(output, "utf-8") if not isinstance(output, bytes) else output
-            meta = await producer.send_and_wait(
-                self.topic, output, partition=self.partition
-            )
+            meta = await producer.send_and_wait(self.topic, output, partition=self.partition)
         finally:
             # Wait for all pending messages to be delivered or expire.
             await producer.stop()

@@ -26,18 +26,18 @@ pip-install: install-poetry
 	poetry export --dev --without-hashes -f requirements.txt -o requirements.txt
 	pip install -r requirements.txt
 
-docker-build: build
+docker-build-branch:
 	docker build --build-arg KAFKAESCLI_VERSION=$$(poetry version -s) -t "jonykalavera/kafkaescli:$$(poetry version -s)-$$(git branch --show-current)" .
+
+docker-build: build
+	docker build --build-arg KAFKAESCLI_VERSION=$$(poetry version -s) -t "jonykalavera/kafkaescli:$$(poetry version -s)" .
 
 docker-push:
 	docker push jonykalavera/kafkaescli:"$$(poetry version -s)-$$(git branch --show-current)"
 
-docker-run-tests:
-	docker run \
-		-v $(realpath .):/code \
-		--workdir /code \
-		"jonykalavera/kafkaescli:$$(poetry version -s)-$$(git branch --show-current)" \
-		make pip-install test
+docker-test:
+	docker run -v $${pwd}:/code "jonykalavera/kafkaescli:$$(poetry version -s)-$$(git branch --show-current)" \
+
 
 pipeline-test: pip-install test
 

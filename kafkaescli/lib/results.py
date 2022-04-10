@@ -35,8 +35,7 @@ def as_result(
     exceptions of the specified exception type(s) are turned into ``Err(exc)``.
     """
     if not exceptions or not all(
-        inspect.isclass(exception) and issubclass(exception, BaseException)
-        for exception in exceptions
+        inspect.isclass(exception) and issubclass(exception, BaseException) for exception in exceptions
     ):
         raise TypeError("as_result() requires one or more exception types")
 
@@ -58,8 +57,6 @@ def as_result(
                 logger.error("%r", exc)
                 return Err(exc)
 
-        return functools.wraps(f)(
-            sync_wrapper if iscoroutinefunction(async_wrapper) else async_wrapper
-        )
+        return functools.wraps(f)(sync_wrapper if iscoroutinefunction(async_wrapper) else async_wrapper)
 
     return decorator

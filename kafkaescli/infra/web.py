@@ -27,9 +27,7 @@ class ProduceParams(models.Model):
 
 @app.post("/produce/{topic}")
 async def produce(topic: str, params: ProduceParams) -> dict[str, list[dict[str, Any]]]:
-    result = commands.ProduceCommand(
-        config=models.Config(), topic=topic, messages=params.messages
-    ).execute_async()
+    result = commands.ProduceCommand(config=models.Config(), topic=topic, messages=params.messages).execute_async()
     response = {"messages": list()}
     async for msg in result.unwrap_or(respond_with_error):
         response["messages"].append(msg)
