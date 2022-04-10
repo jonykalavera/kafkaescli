@@ -14,7 +14,7 @@ config = models.Config()
 logger = logging.getLogger(__name__)
 
 
-def _log_error_and_exit(error: BaseException):
+def _print_error_and_exit(error: BaseException):
     """Log error and exit.
 
     Args:
@@ -47,15 +47,17 @@ def consume(
     echo: bool = typer.Option(default=True, envvar="KAFKAESCLI_CONSUMER_ECHO"),
     group_id: Optional[str] = typer.Option(default=None, envvar="KAFKAESCLI_CONSUMER_GROUP_ID"),
     webhook: Optional[str] = typer.Option(default=None, envvar="KAFKAESCLI_CONSUMER_WEBHOOK"),
+    limit: int = -1,
 ):
     result = commands.ConsumeCommand(
         config=config,
         topics=topics,
         webhook=webhook,
         group_id=group_id,
+        limit=limit,
     ).execute()
-    result.map_err(_log_error_and_exit)
-    result.map(partial(_echo_output, metadata=metadata, key="message", echo=echo))
+    result.map_err(_print_error_and_exit)
+    result.map(partial(_echo_output, metadata=metadata, echo=echo))
 
 
 def _get_lines(file_path="-") -> Iterator[str]:
@@ -90,7 +92,7 @@ def produce(
         topic=topic,
         messages=_get_messages(stdin=stdin, file=file, messages=messages),
     ).execute()
-    result.map_err(_log_error_and_exit)
+    result.map_err(_print_error_and_exit)
     result.map(partial(_echo_output, metadata=metadata, key="message", echo=echo))
 
 
@@ -134,5 +136,5 @@ def main(
         profile_name=profile,
         overrides=overrides
     ).execute()
-    result.map_err(_log_error_and_exit)
+    result.map_err(_print_error_and_exit)
     config = result.unwrap()

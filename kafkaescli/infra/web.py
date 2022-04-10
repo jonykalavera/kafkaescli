@@ -1,29 +1,63 @@
-from typing import Any, Optional
+from functools import lru_cache, partial
+from typing import AsyncIterator, List, Optional
 
-import pkg_resources
 from fastapi import FastAPI, HTTPException
+from starlette.responses import StreamingResponse
 
 from kafkaescli.app import commands
-from kafkaescli.domain import models, schemas
+from kafkaescli.domain import models, schemas, constants, types
 
-app = FastAPI()
+app = FastAPI(
+    title=constants.APP_TITLE
+)
+
+
+async def _echo_output(messages: AsyncIterator[models.Payload]):
+    async for msg in messages:
+        yield msg.json()
+        yield '\n'
+
+
+def respond_with_error(err: BaseException, status_code=500) -> None:
+    raise HTTPException(status_code=status_code, detail={"err": str(err)})
+
+
+@lru_cache
+def load_config(profile_name: Optional[str] = None) -> models.Config:
+    result = commands.GetConfigCommand(profile_name=profile_name).execute()
+    result.map_err(respond_with_error)
+    return result.unwrap()
 
 
 @app.get("/")
 def read_root() -> schemas.ServerRoot:
-    return schemas.ServerRoot(name="KafkaesCLI", version=pkg_resources.get_distribution("kafkaescli").version)
+    return schemas.ServerRoot(name=constants.APP_TITLE, version=constants.APP_VERSION)
 
 
-async def respond_with_error(err: BaseException):
-    raise HTTPException(status_code=500, detail={"err": str(err)})
-
-
-@app.post("/produce/{topic}")
-async def produce(topic: str, params: schemas.ProduceParams, profile: Optional[str] = None) -> list[models.ProducerPayload]:
-    config = commands.GetConfigCommand(profile_name=profile).execute().map_err(respond_with_error).unwrap()
-    result = commands.ProduceCommand(config=config, topic=topic, messages=params.messages).execute_async()
+@app.post("/produce/{topic}", response_model=models.ProducerPayload)
+async def produce(topic: str, message: types.JSONSerializable, profile: Optional[str] = None) -> StreamingResponse:
+    config = load_config(profile_name=profile)
+    result = commands.ProduceCommand(config=config, topic=topic, messages=[message]).execute_async()
     result.map_err(respond_with_error)
-    results = []
-    async for msg in result.unwrap():
-        results.append(msg)
-    return results
+    return StreamingResponse(result.map(_echo_output).unwrap(), media_type="application/json")
+
+
+@app.post("/consume/{topic}", response_model=models.ConsumerPayload)
+async def consume(
+    topic: str,
+    limit: int = 1,
+    group_id: Optional[str] = None,
+    webhook: Optional[str] = None,
+    profile: Optional[str] = None
+) -> StreamingResponse:
+    config = load_config(profile_name=profile)
+    result = commands.ConsumeCommand(
+        config=config,
+        topics=[topic],
+        webhook=webhook,
+        group_id=group_id,
+        limit=limit
+    ).execute_async()
+    result.map_err(respond_with_error)
+    result = result.map(_echo_output)
+    return StreamingResponse(result.unwrap(), media_type="application/json")

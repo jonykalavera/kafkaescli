@@ -10,6 +10,7 @@ import aiohttp
 from pydantic.fields import Field
 
 from kafkaescli.domain.models import Config, ConsumerPayload
+from kafkaescli.infra.web import consume
 from kafkaescli.lib import kafka
 from kafkaescli.lib.commands import AsyncCommand
 from kafkaescli.lib.middleware import MiddlewarePipeline
@@ -20,6 +21,13 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+async def take_limit(iterator: AsyncIterator, limit=1) -> AsyncIterator:
+    num = 0
+    async for value in iterator:
+        yield value
+        num += 1
+        if num >= limit:
+            break
 
 class ConsumeCommand(AsyncCommand):
     config: Config
@@ -28,6 +36,7 @@ class ConsumeCommand(AsyncCommand):
     auto_commit_interval_ms: int = Field(title="Autocommit frequency in milliseconds", default=1000)
     auto_offset_reset: str = "latest"
     webhook: Optional[str] = Field(default=None)
+    limit: int
 
     async def _call_webhook(self, session, payload):
         if not self.webhook:
@@ -45,13 +54,14 @@ class ConsumeCommand(AsyncCommand):
     @as_result(ImportError, *kafka.KAFKA_EXCEPTIONS)
     async def execute_async(self) -> AsyncIterator[ConsumerPayload]:
         async with aiohttp.ClientSession(raise_for_status=True) as session:
-            async for payload in kafka.consume_messages(
+            results = take_limit(kafka.consume_messages(
                 topics=self.topics,
                 group_id=self.group_id or f"kafkaescli-{uuid4()}",
                 enable_auto_commit=False,
                 auto_offset_reset=self.auto_offset_reset,
                 bootstrap_servers=self.config.bootstrap_servers,
-            ):
+            ), limit=self.limit)
+            async for payload in results:
                 logger.debug("consumed: %r", payload)
                 payload = await self._call_middleware_hook(payload=payload)
                 await self._call_webhook(session=session, payload=payload)

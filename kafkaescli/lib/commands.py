@@ -7,6 +7,7 @@ from inspect import isasyncgen
 from result import Result
 
 from kafkaescli.domain.models import DataModel
+from kafkaescli.lib.coroutines import handle_asyncgen
 
 
 class CommandInterface(ABC):
@@ -22,38 +23,22 @@ class Command(CommandInterface, DataModel):
 
 
 class AsyncCommand(Command):
-    def _handle_asyncgen(self, ait):
-        ait = ait.__aiter__()
-
-        async def get_next():
-            try:
-                obj = await ait.__anext__()
-                return False, obj
-            except StopAsyncIteration:
-                return True, None
-
+    @property
+    def async_loop(self):
         try:
-            loop = asyncio.get_running_loop()
+            return asyncio.get_running_loop()
         except RuntimeError:
-            loop = asyncio.new_event_loop()
-        while True:
-            done, obj = loop.run_until_complete(get_next())
-            if done:
-                break
-            yield obj
+            return asyncio.new_event_loop()
 
     def _handle_corrutine(self, coro):
         if isasyncgen(coro):
-            value = self._handle_asyncgen(coro)
+            value = handle_asyncgen(coro)
         else:
-            value = self._loop.run_until_complete(coro)
+            value = self.async_loop.run_until_complete(coro)
         return value
 
     def execute(self) -> Result:
-        try:
-            asyncio.get_running_loop()
-        except RuntimeError:
-            asyncio.new_event_loop()
+
         return self.execute_async().map(self._handle_corrutine)
 
     @abstractmethod

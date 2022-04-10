@@ -1,8 +1,5 @@
 import json
-from functools import cached_property
 from typing import Optional
-
-from pydantic import fields
 
 from kafkaescli.domain.constants import DEFAULT_CONFIG_FILE_PATH
 from kafkaescli.domain.models import Config, ConfigFile
