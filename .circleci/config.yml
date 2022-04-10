@@ -17,9 +17,6 @@ jobs:
           name: build and push Docker image
           command: make docker-build
       - run:
-          name: run-tests
-          command: make docker-run-tests
-      - run:
           name: push Docker image
           command: make docker-push
   test:
@@ -75,7 +72,7 @@ jobs:
           name: "release package"
           command: "make pipeline-release-major"
 
-  docs-build:
+  docs:
     docker:
       - image: cimg/python:3.10
     steps:
@@ -95,9 +92,11 @@ jobs:
 workflows:
   pull-requests:
     jobs:
-      - build
       - test
-      - docs-build:
+      - build:
+          requires:
+            - test
+      - docs:
           requires:
             - test
       - hold: # <<< A job that will require manual approval in the CircleCI web application.
@@ -107,7 +106,8 @@ workflows:
           type: approval # <<< This key-value pair will set your workflow to a status of "On Hold"
           requires: # We only run the "hold" job when tests have succeeded
            - test
-           - docs-build
+           - docs
+           - build
       # On approval of the `hold` job, any successive job that requires the `hold` job will run.
       # In this case, a user is manually triggering the deploy job.
       - release-patch:
