@@ -45,8 +45,8 @@ docker-test:
 pipeline-test: pip-install test
 
 pipeline-release.%: pip-install groom build
-	VERSION=$* git config user.email "ci-build@kafkaescli.pipeline" &\
-    	git config user.name "ci-build" & \
+	VERSION=$* git config --global user.email "ci-build@kafkaescli.pipeline" & \
+    	git config --global user.name "ci-build" & \
 		poetry version $$VERSION && \
 		git commit -am "bump $$VERSION version: $$(poetry version -s)"
 
