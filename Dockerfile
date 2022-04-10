@@ -1,15 +1,10 @@
 FROM python:3.10.2
 
-ARG KAFKESCLI_API_TOKEN
-ARG KAFKESCLI_API_URL=https://otc.uat.kafkescli.net/
+ARG KAFKAESCLI_VERSION
+ENV KAFKAESCLI_VERSION=${KAFKAESCLI_VERSION}
 
-ENV KAFKESCLI_API_TOKEN=${KAFKESCLI_API_TOKEN}
-ENV KAFKESCLI_API_URL=${KAFKESCLI_API_URL}
+WORKDIR /code
+ADD ./dist ./dist
+RUN pip install "/code/dist/kafkaescli-${KAFKAESCLI_VERSION}-py3-none-any.whl"
 
-WORKDIR /dist
-
-COPY ./dist/* .
-
-RUN python -m pip install ./kafkescli-0.1.0-py3-none-any.whl
-
-CMD [ "python", "-m", "kafkescli" ]
+CMD [ "python", "-m", "kafkaescli" ]

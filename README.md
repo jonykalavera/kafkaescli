@@ -1,40 +1,41 @@
-﻿# KafkesCLI
+﻿
+![Kafkaescli](docs/images/kafkaescli-repository-open-graph-template.png)
 
-A magical kafka command line interface.
+[![CircleCI](https://circleci.com/gh/jonykalavera/kafkaescli/tree/main.svg?style=svg)](https://circleci.com/gh/jonykalavera/kafkaescli/tree/main)
 
 # Install
 
 Install from git
 
 ```sh
-pip install git+https://github.com/jonykalavera/kafkescli.git
+pip install git+https://github.com/jonykalavera/kafkaescli.git
 ```
 
 # Usage
 
 ```bash
 # general help
-kafkescli --help
+kafkaescli --help
 # command help
-kafkescli consume --help
+kafkaescli consume --help
 # consume from hello
-kafkescli consume hello
-# consume from hello with callback function
-kafkescli consume hello --callback examples.json.consume
+kafkaescli consume hello
+# consume from hello with middleware function
+kafkaescli consume hello --middleware examples.json.consume
 # produce to hello, the message: world
-kafkescli produce hello world
+kafkaescli produce hello world
 # produce to hello, the message: "world of cli kafka"
-kafkescli produce hello "world of cli kafka"
-# produce to hello, the message: world with callback function
-kafkescli produce hello world --callback examples.json.produce
+kafkaescli produce hello "world of cli kafka"
+# produce to hello, the message: world with middleware function
+kafkaescli produce hello world --middleware examples.json.produce
 # run producer endpoint
-kafkescli runserver
+kafkaescli runserver
 # produce to hello, from stdin lines"
-echo "hello world of kfk" | kafkescli produce hello --stdin
+echo "hello world of kfk" | kafkaescli produce hello --stdin
 # consume from hello piped to produce to world
-kafkescli consume hello | kafkescli produce world --stdin
+kafkaescli consume hello | kafkaescli produce world --stdin
 # consume from hello showing medadata and post to webhook
-kafkescli consume hello --metadata --webhook https://myendpoint.example.com
+kafkaescli consume hello --metadata --webhook https://myendpoint.example.com
 ```
 
 # Contributions
@@ -43,3 +44,11 @@ kafkescli consume hello --metadata --webhook https://myendpoint.example.com
 
 Pull-requests are welcome and will be processed on a best-effort basis.
 Follow the [contributing guide](CONTRIBUTING.md).
+
+# Development
+
+```sh
+# install delopment dependencies
+$ make install
+$ alias kfk='python -m kafkaescli'
+```

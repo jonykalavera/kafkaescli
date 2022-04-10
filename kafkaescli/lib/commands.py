@@ -6,7 +6,7 @@ from inspect import isasyncgen
 
 from result import Result
 
-from kafkescli.domain.models import DataModel
+from kafkaescli.domain.models import DataModel
 
 
 class CommandInterface(ABC):

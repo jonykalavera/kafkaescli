@@ -1,5 +1,5 @@
 
-You would like to contribute to `kafkescli`, thank you very much!
+You would like to contribute to `kafkaescli`, thank you very much!
 
 Here are a few tips and guidelines to help you in the process.
 
@@ -31,12 +31,12 @@ To save time (my writing time and your reading time), I tried to make it short s
 ## Unit tests
 
 [[warning|TODO]]
-| write initial tests 
+| write initial tests
 
 Pull requests must come with unit tests, either new ones (for feature addtitions), changed ones (for feature changes) or non-regression ones (for bug fixes).
 Have a look at the [tests](tests/) folder and the ~~existing~~ to-be-written automated (not) tests scripts to see how they are organized:
 
-* within the `tests` folder, the subfolders' structure follows the one of the `kafkescli` production code
+* within the `tests` folder, the subfolders' structure follows the one of the `kafkaescli` production code
 * it helps finding the best location to write the unit tests, and where to find the ones corresponding to a feature you want to understand better
 
 This project ~~uses~~ will use the [pytest](https://docs.pytest.org) framework to run the whole tests suit.
@@ -48,7 +48,7 @@ It provides useful features like the parametrization of unit test functions and 
 python_version = '3.10+' (could work with others. haven't tested)
 # Use pythonesque features (list or dict comprehensions, generators) when possible and relevant.
 # Use **type annotations**.
-f'use f-strings to format strings, kafkescli use Python {python_version}'
+f'use f-strings to format strings, kafkaescli use Python {python_version}'
 ```
 
 ### Code formatting

@@ -5,7 +5,7 @@
             "name": "produce json",
             "type": "python",
             "request": "launch",
-            "module": "kafkescli",
+            "module": "kafkaescli",
             "justMyCode": true,
             "args": [
                 "--middleware-classes",
@@ -19,7 +19,7 @@
             "name": "consume json",
             "type": "python",
             "request": "launch",
-            "module": "kafkescli",
+            "module": "kafkaescli",
             "justMyCode": true,
             "args": [
                 "--middleware-classes",
@@ -33,7 +33,7 @@
             "name": "produce avro",
             "type": "python",
             "request": "launch",
-            "module": "kafkescli",
+            "module": "kafkaescli",
             "justMyCode": true,
             "args": [
                 "--middleware-classes",
@@ -47,7 +47,7 @@
             "name": "consume avro",
             "type": "python",
             "request": "launch",
-            "module": "kafkescli",
+            "module": "kafkaescli",
             "justMyCode": true,
             "args": [
                 "--middleware-classes",
@@ -61,7 +61,7 @@
             "name": "consume hello",
             "type": "python",
             "request": "launch",
-            "module": "kafkescli",
+            "module": "kafkaescli",
             "justMyCode": true,
             "args": [
                 "consume",
@@ -72,7 +72,7 @@
             "name": "produce hello world",
             "type": "python",
             "request": "launch",
-            "module": "kafkescli",
+            "module": "kafkaescli",
             "justMyCode": true,
             "args": [
                 "produce",

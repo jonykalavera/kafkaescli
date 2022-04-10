@@ -6,8 +6,8 @@ from uuid import uuid4
 
 from pydantic import UUID4, BaseConfig, BaseModel, fields
 
-from kafkescli.domain.constants import DEFAULT_BOOTSTRAP_SERVERS
-from kafkescli.domain.types import JSONSerializable
+from kafkaescli.domain.constants import DEFAULT_BOOTSTRAP_SERVERS
+from kafkaescli.domain.types import JSONSerializable
 
 
 class Model(BaseModel):

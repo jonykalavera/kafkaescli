@@ -5,71 +5,40 @@ version: 2.1
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
-  test36:
+  build:
+    docker:
+      - image: cimg/python:3.10
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 19.03.13
+          docker_layer_caching: true
+      - run:
+          name: "Build branch docker image"
+          command: make docker-build
+      - run:
+          name: "Push branch docker image"
+          command: make docker-push
+  test:
     # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
     # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
     docker:
-      - image: cimg/python:3.6
+      - image: cimg/python:3.10
     # Add steps to the job
     # See: https://circleci.com/docs/2.0/configuration-reference/#steps
     steps:
       - checkout
+      - setup_remote_docker:
+          version: 19.03.13
+          docker_layer_caching: true
       - run:
-          name: "run tests with python 3.6"
+          name: "run tests"
           command: "make pipeline-test"
       - store_test_results:
           path: test-results
       - store_artifacts:
           path: htmlcov
-  test37:
-    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
-    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
-    docker:
-      - image: cimg/python:3.7
-    # Add steps to the job
-    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
-    steps:
-      - checkout
-      - run:
-          name: "run tests with python 3.7"
-          command: "make pipeline-test"
-      - store_test_results:
-          path: test-results
-      - store_artifacts:
-          path: htmlcov
-  test38:
-    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
-    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
-    docker:
-      - image: cimg/python:3.8
-    # Add steps to the job
-    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
-    steps:
-      - checkout
-      - run:
-          name: "run tests with python 3.8"
-          command: "make pipeline-test"
-      - store_test_results:
-          path: test-results
-      - store_artifacts:
-          path: htmlcov
-  test39:
-    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
-    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
-    docker:
-      - image: cimg/python:3.9
-    # Add steps to the job
-    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
-    steps:
-      - checkout
-      - run:
-          name: "run tests with python 3.9"
-          command: "make pipeline-test"
-      - store_test_results:
-          path: test-results
-      - store_artifacts:
-          path: htmlcov
-  test310:
+  release-patch:
     # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
     # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
     docker:
@@ -79,44 +48,46 @@ jobs:
     steps:
       - checkout
       - run:
-          name: "run tests with python 3.10"
-          command: "make pipeline-test"
-      - store_test_results:
-          path: test-results
-      - store_artifacts:
-          path: htmlcov
-  release:
-    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
-    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
+          name: "release patch"
+          command: "make pipeline-release.patch"
+
+  docs:
     docker:
       - image: cimg/python:3.10
-    # Add steps to the job
-    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
     steps:
       - checkout
       - run:
-          name: "release package"
-          command: "make pipeline-release"
+          name: Install dependencies
+          command: make pip-install
+      - run:
+          name: Build docs
+          command: "cd docs/ && make html"
+      - persist_to_workspace:
+          root: docs/_build
+          paths: html
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
   pull-requests:
     jobs:
-      - test37
-      - test38
-      - test39
-      - test310
+      - test
+      - build:
+          requires:
+            - test
+      - docs:
+          requires:
+            - test
       - hold: # <<< A job that will require manual approval in the CircleCI web application.
           filters:
-              branches:
-                  only: /main/
+            branches:
+              only: /main/
           type: approval # <<< This key-value pair will set your workflow to a status of "On Hold"
           requires: # We only run the "hold" job when tests have succeeded
-           - test310
-           - test39
+           - test
+           - docs
       # On approval of the `hold` job, any successive job that requires the `hold` job will run.
       # In this case, a user is manually triggering the deploy job.
-      - release:
+      - release-patch:
           requires:
             - hold

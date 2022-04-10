@@ -1,17 +1,20 @@
+SHELL := /bin/bash
 POETRY_VERSION=1.1.12
+
 test:
-	mkdir test-results
-	python -m pytest --cov --junitxml=test-results/junit.xml tests/
-	python -m coverage report
-	python -m coverage html  # open htmlcov/index.html in a browser
+	mkdir -p test-results
+	pytest --cov=kafkaescli --junitxml=test-results/junit.xml tests/
+	coverage report
+	coverage html  # open htmlcov/index.html in a browser
 
 groom:
-	isort kafkescli/ tests/
-	black kafkescli/ tests/
+	isort kafkaescli/ tests/
+	black kafkaescli/ tests/
 
 
 install-poetry:
-	POETRY_VERSION=$(POETRY_VERSION) curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
+	pip install pip --upgrade
+	pip install poetry==$(POETRY_VERSION)
 
 make build:
 	poetry build
@@ -19,18 +22,27 @@ make build:
 install:
 	poetry install
 
-pip-install:
+pip-install: install-poetry
 	poetry export --dev --without-hashes -f requirements.txt -o requirements.txt
 	pip install -r requirements.txt
 
+docker-build-branch:
+	docker build --build-arg KAFKAESCLI_VERSION=$$(poetry version -s) -t "jonykalavera/kafkaescli:$$(poetry version -s)-$$(git branch --show-current)" .
+
 docker-build: build
-	@docker build -t kafkescli: .
+	docker build --build-arg KAFKAESCLI_VERSION=$$(poetry version -s) -t "jonykalavera/kafkaescli:$$(poetry version -s)" .
 
-docker-run:
-	docker run -it --rm --name kafkescli kafkescli
+docker-push:
+	docker push jonykalavera/kafkaescli:"$$(poetry version -s)-$$(git branch --show-current)"
 
-pipeline-test: install-poetry pip-install test
+docker-test:
+	docker run -v $${pwd}:/code "jonykalavera/kafkaescli:$$(poetry version -s)-$$(git branch --show-current)" \
 
-pipeline-release.%: install-poetry pip-install groom build
-	poetry version $*
-	git commit -am "bump version: $$(poetry version)"
+
+pipeline-test: pip-install test
+
+pipeline-release.%: pip-install groom build
+	VERSION=$* poetry version $$VERSION && git commit -am "bump $$VERSION version: $$(poetry version -s)"
+
+pipeline-build-docs:
+	cd docs/ && make html

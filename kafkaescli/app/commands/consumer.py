@@ -27,10 +27,10 @@ from aiokafka.errors import (
 )
 from pydantic.fields import Field
 
-from kafkescli.domain.models import Config, ConsumerPayload
-from kafkescli.lib.commands import AsyncCommand
-from kafkescli.lib.middleware import MiddlewarePipeline
-from kafkescli.lib.results import as_result
+from kafkaescli.domain.models import Config, ConsumerPayload
+from kafkaescli.lib.commands import AsyncCommand
+from kafkaescli.lib.middleware import MiddlewarePipeline
+from kafkaescli.lib.results import as_result
 
 if TYPE_CHECKING:
     from aiokafka.structs import ConsumerRecord
@@ -61,16 +61,14 @@ class ConsumeCommand(AsyncCommand):
     config: Config
     topics: List[str]
     group_id: Optional[str] = Field(default=None)
-    auto_commit_interval_ms: int = Field(
-        title="Autocommit frequency in milliseconds", default=1000
-    )
+    auto_commit_interval_ms: int = Field(title="Autocommit frequency in milliseconds", default=1000)
     auto_offset_reset: str = "latest"
     webhook: Optional[str] = Field(default=None)
 
     async def consume_messages(self) -> AsyncIterator["ConsumerRecord"]:
         consumer = AIOKafkaConsumer(
             *self.topics,
-            group_id=self.group_id or f'kafkescli-{uuid4()}',
+            group_id=self.group_id or f"kafkaescli-{uuid4()}",
             enable_auto_commit=False,
             auto_offset_reset=self.auto_offset_reset,
             bootstrap_servers=self.config.bootstrap_servers,

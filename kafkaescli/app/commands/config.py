@@ -3,10 +3,10 @@ from typing import Optional
 
 from pydantic import fields
 
-from kafkescli.domain.constants import DEFAULT_CONFIG_FILE_PATH
-from kafkescli.domain.models import Config, ConfigFile
-from kafkescli.lib.commands import Command
-from kafkescli.lib.results import as_result
+from kafkaescli.domain.constants import DEFAULT_CONFIG_FILE_PATH
+from kafkaescli.domain.models import Config, ConfigFile
+from kafkaescli.lib.commands import Command
+from kafkaescli.lib.results import as_result
 
 
 class GetConfigCommand(Command):

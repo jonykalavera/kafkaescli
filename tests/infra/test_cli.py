@@ -1,11 +1,11 @@
 import pytest
 
-from kafkescli.infra import cli
+from kafkaescli.infra import cli
 
 
 @pytest.fixture(name="consumer_command")
 def consumer_command_mock(mocker):
-    consumer_command = mocker.patch("kafkescli.app.commands.ConsumeCommand", autospec=True)
+    consumer_command = mocker.patch("kafkaescli.app.commands.ConsumeCommand", autospec=True)
     consumer_command.return_value = consumer_command
     return consumer_command
 
