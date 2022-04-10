@@ -85,7 +85,7 @@ jobs:
 
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
-  pull-requests:
+  default:
     jobs:
       - test
       - docs-build
