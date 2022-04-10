@@ -1,16 +1,62 @@
+##############################################################################
+# BLACK SETTINGS                                                             #
+##############################################################################
+[tool.black]
+skip_string_normalization = true
+line_length = 119
+target-version = ['py36']
+exclude = '/(\__pycache__|\.pytest_cache|\.mypy_cache|\.tox|\.venv)/'
+
+
+##############################################################################
+# COVERAGE SETTINGS                                                          #
+##############################################################################
+[tool.coverage.run]
+omit = []
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "logger = logging.getLogger.__name__.",
+    "[A-Z_][A-Z0-9_]* = .*",
+    "from .* import .*",
+    "import .*",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "collections.namedtuple"
+]
+ignore_errors = true
+show_missing = true
+skip_covered = true
+
+##############################################################################
+# ISORT SETTINGS                                                             #
+##############################################################################
 [tool.isort]
 profile = "black"
 
+##############################################################################
+# PYLINT SETTINGS                                                            #
+##############################################################################
 [tool.pylint.messages_control]
 disable = "C0330, C0326, missing-module-docstring, missing-class-docstring, missing-function-docstring, missing-method-docstring, too-few-public-methods"
 
 [tool.pylint.format]
 max-line-length = "119"
 
+##############################################################################
+# MYPY SETTINGS                                                            #
+##############################################################################
 [tool.mypy]
 python_version = "3.10"
 ignore_missing_imports = true
 
+##############################################################################
+# POETRY SETTINGS                                                            #
+##############################################################################
 [tool.poetry]
 name = "kafkaescli"
 version = "0.1.0"
@@ -26,6 +72,7 @@ typer = "^0.4.1"
 aiohttp = "^3.8.1"
 fastapi = "^0.75.1"
 uvicorn = "^0.17.6"
+pytest-cov = "^3.0.0"
 
 [tool.poetry.dev-dependencies]
 black = "^22.1.0"
@@ -40,7 +87,6 @@ types-requests = "^2.27.9"
 ipdb = "^0.13.9"
 pydantic-factories = "^1.2.7"
 py2puml = {git = "https://github.com/jonykalavera/py2puml.git"}
-pytest-coverage = "^0.0"
 Sphinx = "^4.5.0"
 sphinx-rtd-dark-mode = "^1.2.4"
 

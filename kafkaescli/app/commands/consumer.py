@@ -70,7 +70,7 @@ class ConsumeCommand(AsyncCommand):
     async def consume_messages(self) -> AsyncIterator["ConsumerRecord"]:
         consumer = AIOKafkaConsumer(
             *self.topics,
-            group_id=self.group_id or f'kafkaescli-{uuid4()}',
+            group_id=self.group_id or f"kafkaescli-{uuid4()}",
             enable_auto_commit=False,
             auto_offset_reset=self.auto_offset_reset,
             bootstrap_servers=self.config.bootstrap_servers,

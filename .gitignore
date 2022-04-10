@@ -128,4 +128,4 @@ dmypy.json
 .pyre/
 
 requirements.txt
-test-results
+test-results/

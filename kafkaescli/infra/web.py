@@ -1,6 +1,6 @@
-import pkg_resources
 from typing import Any
 
+import pkg_resources
 from fastapi import FastAPI, HTTPException
 
 from kafkaescli.app import commands
@@ -13,7 +13,7 @@ app = FastAPI()
 def read_root():
     return {
         "name": "KafkaesCLI",
-        "version": pkg_resources.get_distribution("kafkaescli").version
+        "version": pkg_resources.get_distribution("kafkaescli").version,
     }
 
 

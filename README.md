@@ -1,6 +1,8 @@
 ﻿
 ![Kafkaescli](docs/images/kafkaescli-repository-open-graph-template.png)
 
+[![CircleCI](https://circleci.com/gh/jonykalavera/kafkaescli/tree/main.svg?style=svg)](https://circleci.com/gh/jonykalavera/kafkaescli/tree/main)
+
 # Install
 
 Install from git
@@ -42,3 +44,11 @@ kafkaescli consume hello --metadata --webhook https://myendpoint.example.com
 
 Pull-requests are welcome and will be processed on a best-effort basis.
 Follow the [contributing guide](CONTRIBUTING.md).
+
+# Development
+
+```sh
+# install delopment dependencies
+$ make install
+$ alias kfk='python -m kafkaescli'
+```

@@ -56,3 +56,27 @@ services:
     environment:
       KAFKA_BROKER_ID: ignored
       KAFKA_ZOOKEEPER_CONNECT: ignored
+
+
+  producer:
+    image: .
+    depends_on:
+      - broker
+    ports:
+      - 8000:8000
+    command: "runserver"
+    environment:
+      KFK_SERVER_HOST: 0.0.0.0
+      KAFKA_BROKER_ID: ignored
+      KAFKA_ZOOKEEPER_CONNECT: ignored
+
+  run-tests:
+    image: .
+    depends_on:
+      - broker
+    ports:
+      - 8000:8000
+    entrypoint: "make"
+    command: "pipeline-test"
+    environment:
+      TESTING: 1
