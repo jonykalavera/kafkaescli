@@ -44,9 +44,9 @@ async def produce(topic: str, message: types.JSONSerializable, profile: Optional
     return StreamingResponse(result.map(_echo_output).unwrap(), media_type="application/json")
 
 
-@app.post("/consume/", response_model=models.ConsumerPayload)
+@app.post("/consume/{topic}", response_model=models.ConsumerPayload)
 async def consume(
-    topics: List[str],
+    topic: str,
     limit: int = 1,
     group_id: Optional[str] = None,
     webhook: Optional[str] = None,
@@ -55,7 +55,7 @@ async def consume(
     config = load_config(profile_name=profile)
     result = commands.ConsumeCommand(
         config=config,
-        topics=topics,
+        topics=[topic],
         webhook=webhook,
         group_id=group_id,
         limit=limit

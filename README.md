@@ -5,10 +5,10 @@
 
 # Install
 
-Install from git
+Install from [pypi](https://pypi.org/project/kafkaescli/)
 
 ```sh
-pip install git+https://github.com/jonykalavera/kafkaescli.git
+pip install kafkaescli
 ```
 
 # Usage
@@ -30,7 +30,7 @@ kafkaescli consume hello | kafkaescli produce world --stdin
 kafkaescli produce hello json --middleware examples.json.JSONMiddleware
 # consume from hello with middleware
 kafkaescli consume hello --middleware examples.json.JSONMiddleware
-# run a producer REST endpoint
+# run the web api http://localhost:8000/docs
 kafkaescli runserver
 # POST consumed messages to WEBHOOK
 kafkaescli consume hello --metadata --webhook https://myendpoint.example.com
