@@ -1,7 +1,7 @@
 ﻿
 ![Kafkaescli](docs/images/kafkaescli-repository-open-graph-template.png)
 
-[![CircleCI](https://circleci.com/gh/jonykalavera/kafkaescli/tree/main.svg?style=svg)](https://circleci.com/gh/jonykalavera/kafkaescli/tree/main)
+[![CircleCI](https://circleci.com/gh/jonykalavera/kafkaescli/tree/main.svg?style=svg)](https://circleci.com/gh/jonykalavera/kafkaescli/tree/main) [![Join the chat at https://gitter.im/jonykalavera/kafkaescli](https://badges.gitter.im/jonykalavera/kafkaescli.svg)](https://gitter.im/jonykalavera/kafkaescli?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 # Install
 
