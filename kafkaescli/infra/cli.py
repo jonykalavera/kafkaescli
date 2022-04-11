@@ -131,7 +131,7 @@ def main(
     ),
     middleware: Optional[List[str]] = typer.Option(default=None, envvar="KAFKAESCLI_MIDDLEWARE"),
 ):
-    """Kafkaescli, magical kafka command line interface.
+    """ A magical kafka command line interface.
     """
     global config
     overrides = dict(
