@@ -92,6 +92,8 @@ py2puml = {git = "https://github.com/jonykalavera/py2puml.git"}
 Sphinx = "^4.5.0"
 sphinx-rtd-dark-mode = "^1.2.4"
 pylint-pydantic = "^0.1.4"
+coveralls = "^3.3.1"
+PyYAML = "^6.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
