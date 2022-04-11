@@ -88,14 +88,6 @@ workflows:
   default:
     jobs:
       - test
-      - docs-build
-      - docs-deploy:
-          requires:
-            - test
-            - docs-build
-          filters:
-            branches:
-              only: main
       - hold:
           filters:
             tags:
@@ -106,6 +98,13 @@ workflows:
       - release-patch:
           requires:
             - hold
+  docs:
+    jobs:
+      - docs-build
+      - docs-deploy:
+          requires:
+            - docs-build
+
   docker:
     jobs:
       - build-docker
