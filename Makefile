@@ -26,8 +26,8 @@ install:
 	poetry install
 
 bump.%:
-	VERSION=$* poetry version $$VERSION && \
-		git commit -am "bump $$VERSION version: $$(poetry version -s)" && \
+	poetry version $* && \
+		git commit -am "bump version: $$(poetry version -s)" && \
 		git push
 
 pip-install: install-poetry
