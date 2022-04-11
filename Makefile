@@ -52,6 +52,7 @@ pipeline-release.%: pip-install groom build
 	git config --global user.email "ci-build@kafkaescli.pipeline"
 	git config --global user.name "ci-build"
 	$(MAKE) bump.$*
+	poetry publish --username=__token__ --password=$$PYPI_API_TOKEN
 
 pipeline-build-docs:
 	cd docs/ && make html
