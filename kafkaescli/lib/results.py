@@ -1,10 +1,11 @@
 """ Results extension to cover unreleased code in latest version.
 """
+import asyncio
 import functools
 import inspect
 import sys
 from typing import AsyncIterator, Callable, Tuple, Type, TypeVar
-import asyncio
+
 from meiga import Result as BaseResult
 
 from kafkaescli.lib.coroutines import async_generator_to_generator
@@ -40,6 +41,7 @@ def as_result(
         """
         Decorator to turn a function into one that returns a ``Result``.
         """
+
         @functools.wraps(f)
         def _sync_wrapper(*args: P.args, **kwargs: P.kwargs) -> Result[R, TBE]:
             try:
@@ -58,8 +60,7 @@ def as_result(
 
         @functools.wraps(f)
         async def _asyncgen_wrapper(*args: P.args, **kwargs: P.kwargs) -> Result[R, TBE]:
-            """ FIXME: does not capture exceptions
-            """
+            """FIXME: does not capture exceptions"""
             try:
                 returned_value: R = f(*args, **kwargs)
             except exceptions as exc:

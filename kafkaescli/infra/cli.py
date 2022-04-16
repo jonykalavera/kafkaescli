@@ -10,8 +10,8 @@ import uvicorn
 from kafkaescli.app import commands
 from kafkaescli.domain import constants, models
 from kafkaescli.lib.middleware import MiddlewarePipeline
-from kafkaescli.lib.webhook import WebhookHandler
 from kafkaescli.lib.results import as_result
+from kafkaescli.lib.webhook import WebhookHandler
 
 app = typer.Typer()
 config = models.Config()
@@ -76,7 +76,9 @@ def _get_lines(file_path="-") -> Iterator[str]:
         yield line.strip("\n")
 
 
-def _get_values(stdin: bool, file: Optional[str], values: Optional[List[models.JSONSerializable]] = None) -> List[models.JSONSerializable]:
+def _get_values(
+    stdin: bool, file: Optional[str], values: Optional[List[models.JSONSerializable]] = None
+) -> List[models.JSONSerializable]:
     if stdin:
         values = list(_get_lines("-"))
     elif file is not None:
@@ -114,7 +116,9 @@ def runserver(
     log_config: Optional[str] = typer.Option(None, envvar=constants.KAFKAESCLI_SEVER_LOG_CONFIG),
 ):
     """Run web interface."""
-    typer.secho(f"{constants.APP_TITLE} API {constants.APP_VERSION}: http://{host}:{port}/docs", fg=typer.colors.BRIGHT_GREEN)
+    typer.secho(
+        f"{constants.APP_TITLE} API {constants.APP_VERSION}: http://{host}:{port}/docs", fg=typer.colors.BRIGHT_GREEN
+    )
     sys.exit(
         uvicorn.run(
             f"{constants.APP_PACKAGE}.infra.web:app",
@@ -143,13 +147,12 @@ def main(
     safe_json_loads = as_result(json.JSONDecodeError)(json.loads)
     overrides = dict(
         bootstrap_servers=bootstrap_servers,
-        middleware=[
-            safe_json_loads(m).unwrap_or_else(_print_error_and_exit)
-            for m in middleware
-        ]
+        middleware=[safe_json_loads(m).unwrap_or_else(_print_error_and_exit) for m in middleware]
         if middleware
         else middleware,
     )
-    config = commands.GetConfigCommand(
-        config_file_path=config_file_path, profile_name=profile, overrides=overrides
-    ).execute().unwrap_or_else(_print_error_and_exit)
+    config = (
+        commands.GetConfigCommand(config_file_path=config_file_path, profile_name=profile, overrides=overrides)
+        .execute()
+        .unwrap_or_else(_print_error_and_exit)
+    )

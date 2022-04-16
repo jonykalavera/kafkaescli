@@ -1,15 +1,15 @@
 """ App Commands
 
 """
-from dataclasses import dataclass, field
 import logging
+from dataclasses import dataclass, field
 from typing import AsyncIterator, List, Optional
 from uuid import uuid4
 
 from kafkaescli.domain import constants, models
 from kafkaescli.domain.models import Config, ConsumerPayload
-from kafkaescli.lib.kafka import Consumer, KAFKA_EXCEPTIONS
 from kafkaescli.lib.commands import AsyncCommand
+from kafkaescli.lib.kafka import KAFKA_EXCEPTIONS, Consumer
 from kafkaescli.lib.middleware import MiddlewarePipeline
 from kafkaescli.lib.results import as_result
 from kafkaescli.lib.webhook import WebhookHandler
@@ -32,13 +32,8 @@ class ConsumeCommand(AsyncCommand):
     _hook_after_consume: MiddlewarePipeline = field(init=False)
 
     def __post_init__(self):
-        self._hook_after_consume = MiddlewarePipeline(
-            self.config.middleware,
-            models.MiddlewareHook.AFTER_CONSUME
-        )
-        self._webhook = WebhookHandler(
-            webhook=self.webhook
-        )
+        self._hook_after_consume = MiddlewarePipeline(self.config.middleware, models.MiddlewareHook.AFTER_CONSUME)
+        self._webhook = WebhookHandler(webhook=self.webhook)
         self._consumer = Consumer(
             topics=self.topics,
             group_id=self.group_id or f"{constants.APP_PACKAGE}-{uuid4()}",
@@ -46,7 +41,6 @@ class ConsumeCommand(AsyncCommand):
             auto_offset_reset=self.auto_offset_reset,
             bootstrap_servers=self.config.bootstrap_servers,
         )
-
 
     async def _take_limit(self, iterator: AsyncIterator) -> AsyncIterator:
         num = float('-inf')

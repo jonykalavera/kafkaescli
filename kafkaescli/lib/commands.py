@@ -1,16 +1,16 @@
 """ App Commands
 """
-from abc import ABC, abstractmethod
 import inspect
+from abc import ABC, abstractmethod
 from typing import Iterator, TypeVar
 
 from asgiref.sync import async_to_sync
 
-from kafkaescli.lib.results import Result
 from kafkaescli.lib.coroutines import async_generator_to_generator
-
+from kafkaescli.lib.results import Result
 
 R = TypeVar('R')
+
 
 class CommandInterface(ABC):
     """Command Interface"""

@@ -1,11 +1,10 @@
-from dataclasses import dataclass
 import json
+from dataclasses import dataclass
 from typing import Optional
 
 from kafkaescli.domain.models import Config, ConfigFile
 from kafkaescli.lib.commands import Command
 from kafkaescli.lib.results import as_result
-
 
 
 @as_result(FileNotFoundError, json.JSONDecodeError)

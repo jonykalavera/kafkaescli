@@ -23,18 +23,6 @@ class "Consumer" as kafkaescli.lib.kafka.Consumer #aquamarine {
   consumer_record_to_payload(message: 'ConsumerRecord') -> ConsumerPayload
   execute() -> AsyncIterator[ConsumerPayload]
 }
-class "Field" as dataclasses.Field #grey {
-  compare
-  default
-  default_factory
-  hash
-  init
-  kw_only
-  metadata
-  name : NoneType
-  repr
-  type : NoneType
-}
 class "GetConfigCommand" as kafkaescli.app.commands.config.GetConfigCommand #aliceblue {
   config_file_path : Optional[str]
   overrides : Optional[dict]
@@ -48,7 +36,6 @@ class "MiddlewarePipeline" as kafkaescli.lib.middleware.MiddlewarePipeline #aqua
   execute(bundle: Bundle) -> Bundle
 }
 class "ProduceCommand" as kafkaescli.app.commands.producer.ProduceCommand #aliceblue {
-  Producer
   config
   keys : Optional[List[JSONSerializable]]
   partition : int
@@ -69,8 +56,6 @@ class "WebhookHandler" as kafkaescli.lib.webhook.WebhookHandler #aquamarine {
   context()
   execute(payload: ConsumerPayload) -> None
 }
-dataclasses.Field --* kafkaescli.app.commands.producer.ProduceCommand : _producer
-dataclasses.Field --* kafkaescli.app.commands.producer.ProduceCommand : Producer
 kafkaescli.domain.models.Config --* kafkaescli.app.commands.consumer.ConsumeCommand : config
 kafkaescli.domain.models.Config --* kafkaescli.app.commands.producer.ProduceCommand : config
 kafkaescli.lib.kafka.Consumer --* kafkaescli.app.commands.consumer.ConsumeCommand : _consumer

@@ -22,18 +22,6 @@ classDiagram
     consumer_record_to_payload(message: 'ConsumerRecord') -> ConsumerPayload
     execute() -> AsyncIterator[ConsumerPayload]
   }
-  class Field {
-    compare
-    default
-    default_factory
-    hash
-    init
-    kw_only
-    metadata
-    name : NoneType
-    repr
-    type : NoneType
-  }
   class GetConfigCommand {
     config_file_path : Optional[str]
     overrides : Optional[dict]
@@ -47,7 +35,6 @@ classDiagram
     execute(bundle: Bundle) -> Bundle
   }
   class ProduceCommand {
-    Producer
     config
     keys : Optional[List[JSONSerializable]]
     partition : int
@@ -68,8 +55,6 @@ classDiagram
     context()
     execute(payload: ConsumerPayload) -> None
   }
-  Field --* ProduceCommand : _producer
-  Field --* ProduceCommand : Producer
   Config --* ConsumeCommand : config
   Config --* ProduceCommand : config
   Consumer --* ConsumeCommand : _consumer

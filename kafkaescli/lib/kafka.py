@@ -95,7 +95,7 @@ class Producer:
     topic: str
     value: bytes
     key: Optional[bytes] = None
-    partition=1
+    partition = 1
     _producer: AIOKafkaProducer = field(init=False)
 
     async def execute(self) -> ProducerPayload:
@@ -103,7 +103,9 @@ class Producer:
         # Get cluster layout and initial topic/partition leadership information
         await self._producer.start()
         try:
-            meta = await self._producer.send_and_wait(self.topic, value=self.value, key=self.key, partition=self.partition)
+            meta = await self._producer.send_and_wait(
+                self.topic, value=self.value, key=self.key, partition=self.partition
+            )
         finally:
             # Wait for all pending messages to be delivered or expire.
             await self._producer.stop()

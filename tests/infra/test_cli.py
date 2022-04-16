@@ -1,12 +1,13 @@
 from typing import List
+
 import pytest
+from typer.testing import CliRunner
+
 from kafkaescli.domain.models import JSONSerializable
 
-from typer.testing import CliRunner
 runner = CliRunner()
 
 from kafkaescli.infra import cli
-
 
 
 @pytest.fixture(name="consume_command")
@@ -19,7 +20,12 @@ def consumer_command_mock(mocker):
 def test_consume_hello(consume_command, mocker):
     result = runner.invoke(cli.app, ["consume", "hello"])
     consume_command.assert_called_once_with(
-        topics=("hello",), config=mocker.ANY, webhook=mocker.ANY, group_id=mocker.ANY, limit=mocker.ANY, auto_offset_reset=mocker.ANY
+        topics=("hello",),
+        config=mocker.ANY,
+        webhook=mocker.ANY,
+        group_id=mocker.ANY,
+        limit=mocker.ANY,
+        auto_offset_reset=mocker.ANY,
     )
     assert result.exit_code == 0
     consume_command.execute.assert_called_once_with()
@@ -34,11 +40,10 @@ def producer_command_mock(mocker):
 
 def test_produce_hello_world(produce_command, mocker):
     result = runner.invoke(cli.app, ["produce", "hello", "world"])
-    produce_command.assert_called_once_with(
-        config=mocker.ANY, topic="hello", values=("world",)
-    )
+    produce_command.assert_called_once_with(config=mocker.ANY, topic="hello", values=("world",))
     produce_command.execute.assert_called_once_with()
     assert result.exit_code == 0
+
 
 @pytest.fixture(name="webserver")
 def webserver_mock(mocker):
@@ -48,8 +53,19 @@ def webserver_mock(mocker):
 
 def test_runserver(webserver):
     webserver.run.return_value = 0
-    result = runner.invoke(cli.app, ["runserver",])
+    result = runner.invoke(
+        cli.app,
+        [
+            "runserver",
+        ],
+    )
     webserver.run.assert_called_once_with(
-        "kafkaescli.infra.web:app", host='127.0.0.1', port=8000, reload=False, workers=1, log_level='info', log_config=None
+        "kafkaescli.infra.web:app",
+        host='127.0.0.1',
+        port=8000,
+        reload=False,
+        workers=1,
+        log_level='info',
+        log_config=None,
     )
     assert result.exit_code == 0

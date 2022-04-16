@@ -9,9 +9,11 @@ from kafkaescli.domain import models
 
 Bundle = TypeVar("Bundle")
 
+
 class SyncHookCallback(Protocol):
     def __call__(self, bundle: Bundle, **kwargs) -> Bundle:
         ...
+
 
 class AsyncHookCallback(Protocol):
     async def __call__(self, bundle: Bundle, **kwargs) -> Bundle:
@@ -19,6 +21,7 @@ class AsyncHookCallback(Protocol):
 
 
 HookCallback = Union[SyncHookCallback, AsyncHookCallback]
+
 
 @dataclass
 class MiddlewarePipeline:

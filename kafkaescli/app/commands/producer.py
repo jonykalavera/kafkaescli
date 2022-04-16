@@ -1,13 +1,18 @@
 """ Producer Commands
 """
-from dataclasses import dataclass, field
 import json
 import logging
+from dataclasses import dataclass, field
 from typing import AsyncIterator, List, Optional
 
-from kafkaescli.domain.models import Config, JSONSerializable, ProducerPayload, MiddlewareHook
-from kafkaescli.lib.kafka import Producer, KAFKA_EXCEPTIONS
+from kafkaescli.domain.models import (
+    Config,
+    JSONSerializable,
+    MiddlewareHook,
+    ProducerPayload,
+)
 from kafkaescli.lib.commands import AsyncCommand
+from kafkaescli.lib.kafka import KAFKA_EXCEPTIONS, Producer
 from kafkaescli.lib.middleware import MiddlewarePipeline
 from kafkaescli.lib.results import as_result
 
@@ -26,10 +31,7 @@ class ProduceCommand(AsyncCommand):
     _hook_before_produce: MiddlewarePipeline = field(init=False)
 
     def __post_init__(self):
-        self._hook_before_produce = MiddlewarePipeline(
-            self.config.middleware,
-            MiddlewareHook.AFTER_CONSUME
-        )
+        self._hook_before_produce = MiddlewarePipeline(self.config.middleware, MiddlewareHook.AFTER_CONSUME)
 
     def _producer_bytes(self, value: JSONSerializable) -> bytes:
         output = json.dumps(value) if not isinstance(value, (str, bytes)) else value
