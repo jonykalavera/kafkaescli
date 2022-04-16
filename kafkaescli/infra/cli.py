@@ -79,7 +79,7 @@ def _get_lines(file_path="-") -> Iterator[str]:
 def _get_values(stdin: bool, file: Optional[str], values: Optional[List[models.JSONSerializable]] = None) -> List[models.JSONSerializable]:
     if stdin:
         values = list(_get_lines("-"))
-    elif file:
+    elif file is not None:
         values = list(_get_lines(file))
     return values or []
 
@@ -87,7 +87,7 @@ def _get_values(stdin: bool, file: Optional[str], values: Optional[List[models.J
 @app.command()
 def produce(
     topic: str = typer.Argument(..., envvar=constants.KAFKAESCLI_PRODUCER_TOPIC),
-    values: Optional[List[str]] = typer.Argument(None, envvar=constants.KAFKAESCLI_PRODUCER_values),
+    values: Optional[List[str]] = typer.Argument(None, envvar=constants.KAFKAESCLI_PRODUCER_VALUES),
     file: Optional[str] = typer.Option(None, envvar=constants.KAFKAESCLI_PRODUCER_FILE),
     stdin: bool = typer.Option(False, envvar=constants.KAFKAESCLI_PRODUCER_STDIN),
     metadata: bool = typer.Option(True, envvar=constants.KAFKAESCLI_PRODUCER_METADATA),

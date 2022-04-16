@@ -22,7 +22,7 @@ class ProduceCommand(AsyncCommand):
     keys: Optional[List[JSONSerializable]] = None
     partition: int = 1
 
-    _producer = Producer = field(init=False)
+    _producer: Producer = field(init=False)
     _hook_before_produce: MiddlewarePipeline = field(init=False)
 
     def __post_init__(self):

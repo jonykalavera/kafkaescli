@@ -22,8 +22,9 @@ def async_generator_to_generator(ait: AsyncIterator[I]) -> Iterator[I]:
         except StopAsyncIteration:
             return True, None
 
+    loop = get_or_create_async_loop()
     while True:
-        done, obj = get_or_create_async_loop().run_until_complete(get_next())
+        done, obj = loop.run_until_complete(get_next())
         if done:
             break
         yield obj
