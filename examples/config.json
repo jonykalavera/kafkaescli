@@ -1,0 +1,31 @@
+{
+    "default_profile": "text",
+    "profiles": [
+        {
+            "name": "text",
+            "config": {}
+        },
+        {
+            "name": "json",
+            "config": {
+                "middleware": [
+                    {
+                      "hook_before_produce": "examples.json.hook_before_produce",
+                      "hook_after_consume": "examples.json.hook_after_consume"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "avro",
+            "config": {
+                "middleware": [
+                    {
+                      "hook_before_produce": "examples.avro.hook_before_produce",
+                      "hook_after_consume": "examples.avro.hook_after_consume"
+                    }
+                ]
+            }
+        }
+    ]
+}

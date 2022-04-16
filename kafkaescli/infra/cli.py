@@ -1,3 +1,4 @@
+import json
 import logging
 import sys
 from functools import partial
@@ -8,6 +9,9 @@ import uvicorn
 
 from kafkaescli.app import commands
 from kafkaescli.domain import constants, models
+from kafkaescli.lib.middleware import MiddlewarePipeline
+from kafkaescli.lib.webhook import WebhookHandler
+from kafkaescli.lib.results import as_result
 
 app = typer.Typer()
 config = models.Config()
@@ -20,7 +24,7 @@ def _print_error_and_exit(error: BaseException):
     Args:
         err (Exception): exception instance.
     """
-    typer.secho(f"{error}", fg=typer.colors.BRIGHT_RED)
+    typer.secho(f"{error}", fg=typer.colors.BRIGHT_RED, err=True)
     sys.exit(-1)
 
 
@@ -42,24 +46,25 @@ def _echo_output(
 
 @app.command()
 def consume(
-    topics: List[str] = typer.Argument(..., envvar="KAFKAESCLI_CONSUMER_TOPICS"),
-    metadata: bool = typer.Option(default=False, envvar="KAFKAESCLI_CONSUMER_METADATA"),
-    echo: bool = typer.Option(default=True, envvar="KAFKAESCLI_CONSUMER_ECHO"),
-    group_id: Optional[str] = typer.Option(default=None, envvar="KAFKAESCLI_CONSUMER_GROUP_ID"),
-    webhook: Optional[str] = typer.Option(default=None, envvar="KAFKAESCLI_CONSUMER_WEBHOOK"),
-    limit: int = -1,
+    topics: List[str] = typer.Argument(..., envvar=constants.KAFKAESCLI_CONSUMER_TOPICS),
+    metadata: bool = typer.Option(default=False, envvar=constants.KAFKAESCLI_CONSUMER_METADATA),
+    echo: bool = typer.Option(default=True, envvar=constants.KAFKAESCLI_CONSUMER_ECHO),
+    group_id: Optional[str] = typer.Option(default=None, envvar=constants.KAFKAESCLI_CONSUMER_GROUP_ID),
+    webhook: Optional[str] = typer.Option(default=None, envvar=constants.KAFKAESCLI_CONSUMER_WEBHOOK),
+    auto_offset_reset: str = typer.Option(default='latest'),
+    limit: int = typer.Option(default=-1, envvar=constants.KAFKAESCLI_CONSUMER_LIMIT),
 ):
-    """ Consume messages from kafka topics.
-    """
+    """Consume messages from kafka topics."""
     result = commands.ConsumeCommand(
         config=config,
         topics=topics,
-        webhook=webhook,
         group_id=group_id,
+        auto_offset_reset=auto_offset_reset,
         limit=limit,
+        webhook=webhook,
     ).execute()
-    result.map_err(_print_error_and_exit)
-    result.map(partial(_echo_output, metadata=metadata, echo=echo))
+    echo_output = lambda m: _echo_output(m, metadata=metadata, echo=echo)
+    result.handle(echo_output, _print_error_and_exit)
 
 
 def _get_lines(file_path="-") -> Iterator[str]:
@@ -71,77 +76,77 @@ def _get_lines(file_path="-") -> Iterator[str]:
         yield line.strip("\n")
 
 
-def _get_messages(stdin, file, messages) -> List[str]:
+def _get_values(stdin: bool, file: Optional[str], values: Optional[List[models.JSONSerializable]] = None) -> List[models.JSONSerializable]:
     if stdin:
-        messages = list(_get_lines("-"))
+        values = list(_get_lines("-"))
     elif file:
-        messages = list(_get_lines(file))
-    return messages or []
+        values = list(_get_lines(file))
+    return values or []
 
 
 @app.command()
 def produce(
-    topic: str = typer.Argument(..., envvar="KAFKAESCLI_PRODUCER_TOPIC"),
-    messages: Optional[List[str]] = typer.Argument(None, envvar="KAFKAESCLI_PRODUCER_MESSAGES"),
-    file: Optional[str] = typer.Option(None, envvar="KAFKAESCLI_PRODUCER_FILE"),
-    stdin: bool = typer.Option(False, envvar="KAFKAESCLI_PRODUCER_STDIN"),
-    metadata: bool = typer.Option(True, envvar="KAFKAESCLI_PRODUCER_METADATA"),
-    echo: bool = typer.Option(True, envvar="KAFKAESCLI_PRODUCER_ECHO"),
+    topic: str = typer.Argument(..., envvar=constants.KAFKAESCLI_PRODUCER_TOPIC),
+    values: Optional[List[str]] = typer.Argument(None, envvar=constants.KAFKAESCLI_PRODUCER_values),
+    file: Optional[str] = typer.Option(None, envvar=constants.KAFKAESCLI_PRODUCER_FILE),
+    stdin: bool = typer.Option(False, envvar=constants.KAFKAESCLI_PRODUCER_STDIN),
+    metadata: bool = typer.Option(True, envvar=constants.KAFKAESCLI_PRODUCER_METADATA),
+    echo: bool = typer.Option(True, envvar=constants.KAFKAESCLI_PRODUCER_ECHO),
 ):
-    """ Produce messages to kafka.
-    """
+    """Produce values to a kafka topic."""
     global config
     result = commands.ProduceCommand(
         config=config,
         topic=topic,
-        messages=_get_messages(stdin=stdin, file=file, messages=messages),
+        values=_get_values(stdin=stdin, file=file, values=values),
     ).execute()
-    result.map_err(_print_error_and_exit)
-    result.map(partial(_echo_output, metadata=metadata, key="message", echo=echo))
+    echo_output = lambda x: _echo_output(x, metadata=metadata, key="message", echo=echo)
+    result.handle(echo_output, _print_error_and_exit)
 
 
 @app.command()
 def runserver(
-    host: str = typer.Option("localhost", envvar="KAFKAESCLI_SERVER_HOST"),
-    port: int = typer.Option(8000, envvar="KAFKAESCLI_SERVER_PORT"),
-    reload: bool = typer.Option(False, envvar="KAFKAESCLI_SERVER_AUTORELOAD"),
-    workers: Optional[int] = typer.Option(None, envvar="KAFKAESCLI_SERVER_WORKERS"),
-    log_config: Optional[str] = typer.Option(None, envvar="KAFKAESCLI_SEVER_LOG_INFO"),
+    host: str = typer.Option("127.0.0.1", envvar=constants.KAFKAESCLI_SERVER_HOST),
+    port: int = typer.Option(8000, envvar=constants.KAFKAESCLI_SERVER_PORT),
+    reload: bool = typer.Option(False, envvar=constants.KAFKAESCLI_SERVER_AUTORELOAD),
+    workers: Optional[int] = typer.Option(None, envvar=constants.KAFKAESCLI_SERVER_WORKERS),
+    log_config: Optional[str] = typer.Option(None, envvar=constants.KAFKAESCLI_SEVER_LOG_INFO),
 ):
-    """ Run webserver interface.
-    """
+    """Run web interface."""
     sys.exit(
         uvicorn.run(
-            "kafkaescli.infra.web:app",
+            f"{constants.APP_PACKAGE}.infra.web:app",
             host=host,
             port=port,
             reload=reload,
             workers=workers,
-            log_config=log_config
+            log_config=log_config,
         )
     )
 
 
 @app.callback()
 def main(
-    profile: Optional[str] = typer.Option(default=None, envvar="KAFKAESCLI_PROFILE"),
-    config_file_path: str = typer.Option(default=None, envvar="KAFKAESCLI_CONFIG_FILE_PATH"),
+    profile: Optional[str] = typer.Option(default=None, envvar=constants.KAFKAESCLI_PROFILE),
+    config_file_path: str = typer.Option(default=None, envvar=constants.KAFKAESCLI_CONFIG_FILE_PATH),
     bootstrap_servers: str = typer.Option(
-        default=constants.DEFAULT_BOOTSTRAP_SERVERS, envvar="KAFKAESCLI_BOOTSTRAP_SERVERS"
+        default=constants.DEFAULT_BOOTSTRAP_SERVERS, envvar=constants.KAFKAESCLI_BOOTSTRAP_SERVERS
     ),
-    middleware: Optional[List[str]] = typer.Option(default=None, envvar="KAFKAESCLI_MIDDLEWARE"),
+    middleware: Optional[List[str]] = typer.Option(default=None, envvar=constants.KAFKAESCLI_MIDDLEWARE),
 ):
-    """ A magical kafka command line interface.
-    """
+    """A magical kafka command line interface."""
     global config
+    global middleware_pipeline
+    safe_json_loads = as_result(json.JSONDecodeError)(json.loads)
     overrides = dict(
         bootstrap_servers=bootstrap_servers,
-        middleware_classes=middleware,
+        middleware=[
+            safe_json_loads(m).unwrap_or_else(_print_error_and_exit)
+            for m in middleware
+        ]
+        if middleware
+        else middleware,
     )
-    result = commands.GetConfigCommand(
-        config_file_path=config_file_path,
-        profile_name=profile,
-        overrides=overrides
-    ).execute()
-    result.map_err(_print_error_and_exit)
-    config = result.unwrap()
+    config = commands.GetConfigCommand(
+        config_file_path=config_file_path, profile_name=profile, overrides=overrides
+    ).execute().unwrap_or_else(_print_error_and_exit)

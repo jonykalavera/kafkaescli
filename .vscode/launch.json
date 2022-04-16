@@ -2,12 +2,25 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "py2puml domain",
+            "type": "python",
+            "request": "launch",
+            "module": "py2puml",
+            "justMyCode": false,
+            "args": [
+                "kafkaescli/domain/",
+                "kafkaescli.domain"
+            ]
+        },
+        {
             "name": "run server",
             "type": "python",
             "request": "launch",
             "module": "kafkaescli",
             "justMyCode": true,
             "args": [
+                "--config-file-path",
+                "examples/config.json",
                 "runserver"
             ]
         },
@@ -72,10 +85,40 @@
             "type": "python",
             "request": "launch",
             "module": "kafkaescli",
-            "justMyCode": true,
+            "justMyCode": false,
             "args": [
                 "consume",
                 "hello"
+            ]
+        },
+        {
+            "name": "consume possible_anomalies",
+            "type": "python",
+            "request": "launch",
+            "module": "kafkaescli",
+            "justMyCode": false,
+            "args": [
+                "--bootstrap-servers",
+                "localhost:29092",
+                "consume",
+                "--auto-offset-reset",
+                "earliest",
+                "possible_anomalies"
+            ]
+        },
+        {
+            "name": "consume possible_anomalies",
+            "type": "python",
+            "request": "launch",
+            "module": "kafkaescli",
+            "justMyCode": false,
+            "args": [
+                "--bootstrap-servers",
+                "localhost:29092",
+                "consume",
+                "--auto-offset-reset",
+                "earliest",
+                "possible_anomalies"
             ]
         },
         {

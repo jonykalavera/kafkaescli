@@ -1,0 +1,79 @@
+classDiagram
+  class Config {
+    bootstrap_servers : str
+    middleware : List[Middleware]
+  }
+  class ConsumeCommand {
+    auto_commit_interval_ms : int
+    auto_offset_reset : str
+    config
+    group_id : Optional[str]
+    limit : int
+    topics : List[str]
+    webhook : Optional[str]
+    execute_async() -> AsyncIterator[ConsumerPayload]
+  }
+  class Consumer {
+    auto_offset_reset : str
+    bootstrap_servers : str
+    enable_auto_commit : bool
+    group_id : Optional[str]
+    topics : List[str]
+    consumer_record_to_payload(message: 'ConsumerRecord') -> ConsumerPayload
+    execute() -> AsyncIterator[ConsumerPayload]
+  }
+  class Field {
+    compare
+    default
+    default_factory
+    hash
+    init
+    kw_only
+    metadata
+    name : NoneType
+    repr
+    type : NoneType
+  }
+  class GetConfigCommand {
+    config_file_path : Optional[str]
+    overrides : Optional[dict]
+    profile_name : Optional[str]
+    execute() -> Config
+  }
+  class MiddlewarePipeline {
+    callback : MiddlewareHook
+    extra_kwargs : Optional[Dict[str, Any]]
+    middleware : List[models.Middleware]
+    execute(bundle: Bundle) -> Bundle
+  }
+  class ProduceCommand {
+    Producer
+    config
+    keys : Optional[List[JSONSerializable]]
+    partition : int
+    topic : str
+    values : List[JSONSerializable]
+    execute_async() -> AsyncIterator[ProducerPayload]
+  }
+  class Producer {
+    bootstrap_servers : str
+    key : Optional[bytes]
+    partition : int
+    topic : str
+    value : bytes
+    execute() -> ProducerPayload
+  }
+  class WebhookHandler {
+    webhook : Optional[str]
+    context()
+    execute(payload: ConsumerPayload) -> None
+  }
+  Field --* ProduceCommand : _producer
+  Field --* ProduceCommand : Producer
+  Config --* ConsumeCommand : config
+  Config --* ProduceCommand : config
+  Consumer --* ConsumeCommand : _consumer
+  Producer --* ProduceCommand : _producer
+  MiddlewarePipeline --* ConsumeCommand : _hook_after_consume
+  MiddlewarePipeline --* ProduceCommand : _hook_before_produce
+  WebhookHandler --* ConsumeCommand : _webhook

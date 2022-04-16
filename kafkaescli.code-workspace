@@ -1,0 +1,18 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"cSpell.words": [
+			"aiohttp",
+			"iscoroutinefunction",
+			"meiga",
+			"runserver"
+		],
+		"python.venvPath": "C:/Users/mrjon/AppData/Local/pypoetry/Cache/virtualenvs/",
+		"python.pythonPath": "C:/Users/mrjon/AppData/Local/pypoetry/Cache/virtualenvs/kafkaescli-smCaflfm-py3.10/Scripts/python",
+		"jupyter.debugJustMyCode": true
+	}
+}

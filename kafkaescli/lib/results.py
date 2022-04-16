@@ -2,12 +2,12 @@
 """
 import functools
 import inspect
-import logging
 import sys
-from asyncio.coroutines import iscoroutinefunction
-from typing import Callable, Type, TypeVar
+from typing import AsyncIterator, Callable, Tuple, Type, TypeVar
+import asyncio
+from meiga import Result as BaseResult
 
-from result import Err, Ok, Result
+from kafkaescli.lib.coroutines import async_generator_to_generator
 
 if sys.version_info[:2] >= (3, 10):
     from typing import ParamSpec
@@ -15,7 +15,7 @@ else:
     from typing_extensions import ParamSpec
 
 
-logger = logging.getLogger(__name__)
+Result = BaseResult
 
 
 P = ParamSpec("P")
@@ -36,25 +36,42 @@ def as_result(
     ):
         raise TypeError("as_result() requires one or more exception types")
 
-    def decorator(f: Callable[P, R]) -> Callable[P, Result[R, TBE]]:
+    def _decorator(f: Callable[P, R]) -> Callable[P, Result[R, TBE]]:
         """
         Decorator to turn a function into one that returns a ``Result``.
         """
-
-        def sync_wrapper(*args: P.args, **kwargs: P.kwargs) -> Result[R, TBE]:
+        @functools.wraps(f)
+        def _sync_wrapper(*args: P.args, **kwargs: P.kwargs) -> Result[R, TBE]:
             try:
-                return Ok(f(*args, **kwargs))
+                returned_value: R = f(*args, **kwargs)
+                return Result(success=returned_value)
             except exceptions as exc:
-                return Err(exc)
+                return Result(failure=exc)
 
-        async def async_wrapper(*args: P.args, **kwargs: P.kwargs) -> Result[R, TBE]:
+        @functools.wraps(f)
+        async def _async_wrapper(*args: P.args, **kwargs: P.kwargs) -> Result[R, TBE]:
             try:
                 returned_value: R = await f(*args, **kwargs)
-                return Ok(returned_value)
             except exceptions as exc:
-                logger.error("%r", exc)
-                return Err(exc)
+                return Result(failure=exc)
+            return Result(success=returned_value)
 
-        return functools.wraps(f)(sync_wrapper if iscoroutinefunction(async_wrapper) else async_wrapper)
+        @functools.wraps(f)
+        async def _asyncgen_wrapper(*args: P.args, **kwargs: P.kwargs) -> Result[R, TBE]:
+            """ FIXME: does not capture exceptions
+            """
+            try:
+                returned_value: R = f(*args, **kwargs)
+            except exceptions as exc:
+                return Result(failure=exc)
+            return Result(success=returned_value)
 
-    return decorator
+        if inspect.iscoroutinefunction(f):
+            _wrapper = _async_wrapper
+        elif inspect.isasyncgenfunction(f):
+            _wrapper = _asyncgen_wrapper
+        else:
+            _wrapper = _sync_wrapper
+        return functools.wraps(f)(_wrapper)
+
+    return _decorator

@@ -1,0 +1,81 @@
+@startuml classes_kafkaescli.app
+
+class "Config" as kafkaescli.domain.models.Config #antiquewhite {
+  bootstrap_servers : str
+  middleware : List[Middleware]
+}
+class "ConsumeCommand" as kafkaescli.app.commands.consumer.ConsumeCommand #aliceblue {
+  auto_commit_interval_ms : int
+  auto_offset_reset : str
+  config
+  group_id : Optional[str]
+  limit : int
+  topics : List[str]
+  webhook : Optional[str]
+  execute_async() -> AsyncIterator[ConsumerPayload]
+}
+class "Consumer" as kafkaescli.lib.kafka.Consumer #aquamarine {
+  auto_offset_reset : str
+  bootstrap_servers : str
+  enable_auto_commit : bool
+  group_id : Optional[str]
+  topics : List[str]
+  consumer_record_to_payload(message: 'ConsumerRecord') -> ConsumerPayload
+  execute() -> AsyncIterator[ConsumerPayload]
+}
+class "Field" as dataclasses.Field #grey {
+  compare
+  default
+  default_factory
+  hash
+  init
+  kw_only
+  metadata
+  name : NoneType
+  repr
+  type : NoneType
+}
+class "GetConfigCommand" as kafkaescli.app.commands.config.GetConfigCommand #aliceblue {
+  config_file_path : Optional[str]
+  overrides : Optional[dict]
+  profile_name : Optional[str]
+  execute() -> Config
+}
+class "MiddlewarePipeline" as kafkaescli.lib.middleware.MiddlewarePipeline #aquamarine {
+  callback : MiddlewareHook
+  extra_kwargs : Optional[Dict[str, Any]]
+  middleware : List[models.Middleware]
+  execute(bundle: Bundle) -> Bundle
+}
+class "ProduceCommand" as kafkaescli.app.commands.producer.ProduceCommand #aliceblue {
+  Producer
+  config
+  keys : Optional[List[JSONSerializable]]
+  partition : int
+  topic : str
+  values : List[JSONSerializable]
+  execute_async() -> AsyncIterator[ProducerPayload]
+}
+class "Producer" as kafkaescli.lib.kafka.Producer #aquamarine {
+  bootstrap_servers : str
+  key : Optional[bytes]
+  partition : int
+  topic : str
+  value : bytes
+  execute() -> ProducerPayload
+}
+class "WebhookHandler" as kafkaescli.lib.webhook.WebhookHandler #aquamarine {
+  webhook : Optional[str]
+  context()
+  execute(payload: ConsumerPayload) -> None
+}
+dataclasses.Field --* kafkaescli.app.commands.producer.ProduceCommand : _producer
+dataclasses.Field --* kafkaescli.app.commands.producer.ProduceCommand : Producer
+kafkaescli.domain.models.Config --* kafkaescli.app.commands.consumer.ConsumeCommand : config
+kafkaescli.domain.models.Config --* kafkaescli.app.commands.producer.ProduceCommand : config
+kafkaescli.lib.kafka.Consumer --* kafkaescli.app.commands.consumer.ConsumeCommand : _consumer
+kafkaescli.lib.kafka.Producer --* kafkaescli.app.commands.producer.ProduceCommand : _producer
+kafkaescli.lib.middleware.MiddlewarePipeline --* kafkaescli.app.commands.consumer.ConsumeCommand : _hook_after_consume
+kafkaescli.lib.middleware.MiddlewarePipeline --* kafkaescli.app.commands.producer.ProduceCommand : _hook_before_produce
+kafkaescli.lib.webhook.WebhookHandler --* kafkaescli.app.commands.consumer.ConsumeCommand : _webhook
+@enduml
