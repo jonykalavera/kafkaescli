@@ -1,13 +1,12 @@
 """ Producer Commands
 """
+from dataclasses import dataclass, field
 import json
 import logging
-from functools import cached_property
-from typing import AsyncIterator, List
+from typing import AsyncIterator, List, Optional
 
-from kafkaescli.domain.models import Config, ProducerPayload
-from kafkaescli.domain.types import JSONSerializable
-from kafkaescli.lib import kafka
+from kafkaescli.domain.models import Config, JSONSerializable, ProducerPayload, MiddlewareHook
+from kafkaescli.lib.kafka import Producer, KAFKA_EXCEPTIONS
 from kafkaescli.lib.commands import AsyncCommand
 from kafkaescli.lib.middleware import MiddlewarePipeline
 from kafkaescli.lib.results import as_result
@@ -15,39 +14,43 @@ from kafkaescli.lib.results import as_result
 logger = logging.getLogger(__name__)
 
 
+@dataclass
 class ProduceCommand(AsyncCommand):
     config: Config
     topic: str
-    messages: List[JSONSerializable]
+    values: List[JSONSerializable]
+    keys: Optional[List[JSONSerializable]] = None
     partition: int = 1
 
-    def _get_producer_value(self, message: JSONSerializable) -> bytes:
-        output = json.dumps(message) if not isinstance(message, (str, bytes)) else message
+    _producer: Producer = field(init=False)
+    _hook_before_produce: MiddlewarePipeline = field(init=False)
+
+    def __post_init__(self):
+        self._hook_before_produce = MiddlewarePipeline(
+            self.config.middleware,
+            MiddlewareHook.AFTER_CONSUME
+        )
+
+    def _producer_bytes(self, value: JSONSerializable) -> bytes:
+        output = json.dumps(value) if not isinstance(value, (str, bytes)) else value
         output = bytes(output, "utf-8") if not isinstance(output, bytes) else output
         return output
 
-    async def _produce_message(self, message):
-        payload = await kafka.produce_message(
+    async def _produce_value(self, value, key):
+        self._producer = Producer(
             topic=self.topic,
             bootstrap_servers=self.config.bootstrap_servers,
-            value=self._get_producer_value(message=message),
-            key=None,
+            value=self._producer_bytes(value),
+            key=self._producer_bytes(key),
         )
-        logger.debug("command: %r, output: %r", self.dict(), payload)
+        payload = await self._producer.execute()
+        logger.debug("command: %r, output: %r", self, payload)
         return payload
 
-    @cached_property
-    def _middleware(self):
-        return MiddlewarePipeline(self.config.middleware_classes)
-
-    async def _call_middleware_hook(self, message: JSONSerializable) -> JSONSerializable:
-        if message and self.config.middleware_classes:
-            message = await self._middleware.hook_before_produce(message)
-        return message
-
-    @as_result(ImportError, RuntimeError, *kafka.KAFKA_EXCEPTIONS)
+    @as_result(ImportError, RuntimeError, *KAFKA_EXCEPTIONS)
     async def execute_async(self) -> AsyncIterator[ProducerPayload]:
-        for message in self.messages:
-            message = await self._call_middleware_hook(message)
-            payload = await self._produce_message(message)
+        keys = self.keys or [None] * len(self.values)
+        for key, value in zip(keys, self.values):
+            value = await self._hook_before_produce.execute(value, key=key)
+            payload = await self._produce_value(value, key=key)
             yield payload

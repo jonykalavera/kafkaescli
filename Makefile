@@ -29,6 +29,15 @@ bump.%:
 		git commit -am "bump version: $$(poetry version -s)" && \
 		git push
 
+diagrams.%:
+	rm -fr docs/diagrams/*.$*
+	pyreverse -d ./docs/diagrams --colorized -o "$*" -p kafkaescli.domain kafkaescli.domain
+	pyreverse -d ./docs/diagrams --colorized -o "$*" -s 1 -p kafkaescli.app kafkaescli.app
+	pyreverse -d ./docs/diagrams --colorized -o "$*" -s 1 -p kafkaescli.lib kafkaescli.lib
+	pyreverse -d ./docs/diagrams --colorized -o "$*" -s 1 -p kafkaescli.infra kafkaescli.infra
+	sed -i -e 's/set namespaceSeparator none//g' docs/diagrams/classes_*.$*
+	rm -fr docs/diagrams/packages_*.$*
+
 pip-install: install-poetry
 	poetry export --dev --without-hashes -f requirements.txt -o requirements.txt
 	pip install -r requirements.txt

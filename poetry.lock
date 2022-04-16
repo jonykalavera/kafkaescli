@@ -527,6 +527,14 @@ optional = false
 python-versions = ">=3.6"
 
 [[package]]
+name = "meiga"
+version = "1.3.1"
+description = "A simple, typed and monad-based Result type for Python"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "multidict"
 version = "6.0.2"
 description = "multidict implementation"
@@ -673,7 +681,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
 [[package]]
 name = "py2puml"
-version = "0.5.4"
+version = "0.6.0"
 description = "Generate PlantUML class diagrams to document your Python application."
 category = "dev"
 optional = false
@@ -683,8 +691,8 @@ develop = false
 [package.source]
 type = "git"
 url = "https://github.com/jonykalavera/py2puml.git"
-reference = "master"
-resolved_reference = "9f25ca7ea0bcb2f9e7b25751bcda680a0e8f7d90"
+reference = "add-methods"
+resolved_reference = "ad7712c52c8210a3510739c066fc9ef9abf289fe"
 
 [[package]]
 name = "pydantic"
@@ -758,14 +766,14 @@ pylint = ">2.0,<3.0"
 
 [[package]]
 name = "pyparsing"
-version = "3.0.7"
-description = "Python parsing module"
+version = "3.0.8"
+description = "pyparsing module - Classes and methods to define and execute parsing grammars"
 category = "main"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.6.8"
 
 [package.extras]
-diagrams = ["jinja2", "railroad-diagrams"]
+diagrams = ["railroad-diagrams", "jinja2"]
 
 [[package]]
 name = "pytest"
@@ -872,14 +880,6 @@ urllib3 = ">=1.21.1,<1.27"
 [package.extras]
 socks = ["PySocks (>=1.5.6,!=1.5.7)", "win-inet-pton"]
 use_chardet_on_py3 = ["chardet (>=3.0.2,<5)"]
-
-[[package]]
-name = "result"
-version = "0.7.0"
-description = "A Rust-like result type for Python"
-category = "main"
-optional = false
-python-versions = ">=3.6"
 
 [[package]]
 name = "six"
@@ -1207,7 +1207,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "c431afebec676cbe93066339e02e2616984600a4edbe04f7d08fb5a25145d4ed"
+content-hash = "98badd046416c7929c385d4ba97e4824905403565cf08e8613971dd316d4d246"
 
 [metadata.files]
 aiohttp = [
@@ -1666,6 +1666,10 @@ mccabe = [
     {file = "mccabe-0.7.0-py2.py3-none-any.whl", hash = "sha256:6c2d30ab6be0e4a46919781807b4f0d834ebdd6c6e3dca0bda5a15f863427b6e"},
     {file = "mccabe-0.7.0.tar.gz", hash = "sha256:348e0240c33b60bbdf4e523192ef919f28cb2c3d7d5c7794f74009290f236325"},
 ]
+meiga = [
+    {file = "meiga-1.3.1-py3-none-any.whl", hash = "sha256:6c40c25fe5fec49a2b151f17ffcd1546329e578257cc8d1ec0739557cd01f8d2"},
+    {file = "meiga-1.3.1.tar.gz", hash = "sha256:41d0fec26e873f96995a1c59d684d8c41de86cff0f4c221b1e708b00a09ac9e7"},
+]
 multidict = [
     {file = "multidict-6.0.2-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:0b9e95a740109c6047602f4db4da9949e6c5945cefbad34a1299775ddc9a62e2"},
     {file = "multidict-6.0.2-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:ac0e27844758d7177989ce406acc6a83c16ed4524ebc363c1f748cba184d89d3"},
@@ -1851,8 +1855,8 @@ pylint-pydantic = [
     {file = "pylint_pydantic-0.1.4-py3-none-any.whl", hash = "sha256:d42d9e95255b2f70f82a674cec159f417263363c7da0e28998964d83d7330c72"},
 ]
 pyparsing = [
-    {file = "pyparsing-3.0.7-py3-none-any.whl", hash = "sha256:a6c06a88f252e6c322f65faf8f418b16213b51bdfaece0524c1c1bc30c63c484"},
-    {file = "pyparsing-3.0.7.tar.gz", hash = "sha256:18ee9022775d270c55187733956460083db60b37d0d0fb357445f3094eed3eea"},
+    {file = "pyparsing-3.0.8-py3-none-any.whl", hash = "sha256:ef7b523f6356f763771559412c0d7134753f037822dad1b16945b7b846f7ad06"},
+    {file = "pyparsing-3.0.8.tar.gz", hash = "sha256:7bf433498c016c4314268d95df76c81b842a4cb2b276fa3312cfb1e1d85f6954"},
 ]
 pytest = [
     {file = "pytest-6.2.5-py3-none-any.whl", hash = "sha256:7310f8d27bc79ced999e760ca304d69f6ba6c6649c0b60fb0e04a4a77cacc134"},
@@ -1915,10 +1919,6 @@ pyyaml = [
 requests = [
     {file = "requests-2.27.1-py2.py3-none-any.whl", hash = "sha256:f22fa1e554c9ddfd16e6e41ac79759e17be9e492b3587efa038054674760e72d"},
     {file = "requests-2.27.1.tar.gz", hash = "sha256:68d7c56fd5a8999887728ef304a6d12edc7be74f1cfa47714fc8b414525c9a61"},
-]
-result = [
-    {file = "result-0.7.0-py3-none-any.whl", hash = "sha256:97dcc4b2c6b376713c8de1b49d583a272e05ea2cd45e7fd18a3e8be42fc9fa6f"},
-    {file = "result-0.7.0.tar.gz", hash = "sha256:bd649435fbf457de32e5e941d63d787c21193b126d48c848458ddda1683de980"},
 ]
 six = [
     {file = "six-1.16.0-py2.py3-none-any.whl", hash = "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"},

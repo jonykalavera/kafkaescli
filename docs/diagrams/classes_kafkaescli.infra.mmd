@@ -1,0 +1,24 @@
+classDiagram
+  class APISchema {
+  }
+  class ApiRoot {
+    config
+    name : str
+    version : str
+  }
+  class Config {
+    bootstrap_servers : str
+    middleware : List[Middleware]
+  }
+  class ProduceParams {
+    messages : List[JSONSerializable]
+  }
+  class ProduceResponse {
+    params
+    results : List[ProducerPayload]
+  }
+  ApiRoot --|> APISchema
+  ProduceParams --|> APISchema
+  ProduceResponse --|> APISchema
+  Config --* ApiRoot : config
+  ProduceParams --* ProduceResponse : params

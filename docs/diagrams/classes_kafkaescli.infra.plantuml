@@ -1,0 +1,26 @@
+@startuml classes_kafkaescli.infra
+
+class "APISchema" as kafkaescli.infra.web.schemas.APISchema #aliceblue {
+}
+class "ApiRoot" as kafkaescli.infra.web.schemas.ApiRoot #aliceblue {
+  config
+  name : str
+  version : str
+}
+class "Config" as kafkaescli.domain.models.Config #antiquewhite {
+  bootstrap_servers : str
+  middleware : List[Middleware]
+}
+class "ProduceParams" as kafkaescli.infra.web.schemas.ProduceParams #aliceblue {
+  messages : List[JSONSerializable]
+}
+class "ProduceResponse" as kafkaescli.infra.web.schemas.ProduceResponse #aliceblue {
+  params
+  results : List[ProducerPayload]
+}
+kafkaescli.infra.web.schemas.ApiRoot --|> kafkaescli.infra.web.schemas.APISchema
+kafkaescli.infra.web.schemas.ProduceParams --|> kafkaescli.infra.web.schemas.APISchema
+kafkaescli.infra.web.schemas.ProduceResponse --|> kafkaescli.infra.web.schemas.APISchema
+kafkaescli.domain.models.Config --* kafkaescli.infra.web.schemas.ApiRoot : config
+kafkaescli.infra.web.schemas.ProduceParams --* kafkaescli.infra.web.schemas.ProduceResponse : params
+@enduml
