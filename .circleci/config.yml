@@ -90,6 +90,8 @@ workflows:
       - test
       - hold:
           filters:
+            branches:
+              only: /^main$/
             tags:
               only: /^\d+\.\d+\.\d+$/
           type: approval
@@ -100,14 +102,20 @@ workflows:
             - hold
   docs:
     jobs:
-      - docs-build
+      - docs-build:
+          filters:
+            branches:
+              only: /^main$/
       - docs-deploy:
           requires:
             - docs-build
 
   docker:
     jobs:
-      - build-docker
+      - build-docker:
+          filters:
+            branches:
+              only: /^main$/
       - hold:
           filters:
             tags:
