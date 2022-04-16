@@ -1,46 +1,45 @@
 """ App Commands
 """
-import asyncio
-from abc import ABC, ABCMeta, abstractmethod
-from inspect import isasyncgen
+from abc import ABC, abstractmethod
+import inspect
+from typing import Iterator, TypeVar
 
-from result import Result
+from asgiref.sync import async_to_sync
 
-from kafkaescli.domain.models import DataModel
-from kafkaescli.lib.coroutines import handle_asyncgen
+from kafkaescli.lib.results import Result
+from kafkaescli.lib.coroutines import async_generator_to_generator
 
+
+R = TypeVar('R')
 
 class CommandInterface(ABC):
-    """Application Command Interface"""
+    """Command Interface"""
 
     @abstractmethod
-    def execute(self) -> Result:
+    def execute(self) -> Result[R, BaseException]:
         """Executes implementation returning a result"""
 
-
-class Command(CommandInterface, DataModel):
-    """Application Command base"""
-
-
-class AsyncCommand(Command):
-    @property
-    def async_loop(self):
-        try:
-            return asyncio.get_running_loop()
-        except RuntimeError:
-            return asyncio.new_event_loop()
-
-    def _handle_corrutine(self, coro):
-        if isasyncgen(coro):
-            value = handle_asyncgen(coro)
-        else:
-            value = self.async_loop.run_until_complete(coro)
-        return value
-
-    def execute(self) -> Result:
-
-        return self.execute_async().map(self._handle_corrutine)
-
     @abstractmethod
-    async def execute_async(self) -> Result:
+    async def execute_async(self) -> Result[R, BaseException]:
         """Execute this command asynchronously and return a result."""
+
+
+class Command(CommandInterface):
+    """Command base"""
+
+    async def execute_async(self) -> Result[R, BaseException]:
+        return self.execute()
+
+
+class AsyncCommand(CommandInterface):
+    """Async Command base"""
+
+    def _handle_asyncgen(self, r):
+        if not inspect.isasyncgen(r):
+            return r
+        return async_generator_to_generator(r)
+
+    def execute(self) -> Result[R, BaseException]:
+        result = async_to_sync(self.execute_async)()
+        result.map(self._handle_asyncgen)
+        return result

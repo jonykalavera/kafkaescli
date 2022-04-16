@@ -1,11 +1,11 @@
 from typing import List
-from pydantic import fields
 
-from kafkaescli.domain.models import Config, Model, ProducerPayload
-from kafkaescli.domain.types import JSONSerializable
+from pydantic import BaseModel, fields
+
+from kafkaescli.domain.models import Config, JSONSerializable, ProducerPayload
 
 
-class APISchema(Model):
+class APISchema(BaseModel):
     """Common API Schema"""
 
 

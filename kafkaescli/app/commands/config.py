@@ -1,23 +1,28 @@
+from dataclasses import dataclass
 import json
 from typing import Optional
 
-from kafkaescli.domain.constants import DEFAULT_CONFIG_FILE_PATH
 from kafkaescli.domain.models import Config, ConfigFile
 from kafkaescli.lib.commands import Command
 from kafkaescli.lib.results import as_result
 
 
+
+@as_result(FileNotFoundError, json.JSONDecodeError)
+def _get_config_file_command(config_file_path: Optional[str] = None) -> ConfigFile:
+    if not config_file_path:
+        return ConfigFile()
+    with open(config_file_path) as file:
+        data = json.load(file)
+        config = ConfigFile.parse_obj(data)
+    return config
+
+
+@dataclass
 class GetConfigCommand(Command):
     profile_name: Optional[str] = None
     config_file_path: Optional[str] = None
     overrides: Optional[dict] = None
-
-    def _get_config_file(self) -> ConfigFile:
-        if not self.config_file_path:
-            return ConfigFile()
-        with open(self.config_file_path) as file:
-            config = ConfigFile(*json.load(file))
-        return config
 
     def _merge_overrides(self, config: Config) -> Config:
         if self.overrides is None:
@@ -33,8 +38,8 @@ class GetConfigCommand(Command):
                 return profile.config
         raise ValueError(f'Profile "{profile_name}" not found')
 
-    @as_result(ValueError, json.JSONDecodeError, FileNotFoundError)
+    @as_result(ValueError)
     def execute(self) -> Config:
-        config_file = self._get_config_file()
+        config_file = _get_config_file_command(self.config_file_path).unwrap()
         profile_config = self._get_profile_config(config_file=config_file)
         return self._merge_overrides(profile_config)

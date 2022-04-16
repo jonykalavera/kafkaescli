@@ -5,15 +5,13 @@ from fastapi import FastAPI, HTTPException
 from starlette.responses import StreamingResponse
 
 from kafkaescli.app import commands
-from kafkaescli.domain import models, schemas, constants, types
+from kafkaescli.domain import constants, models
+from kafkaescli.infra.web import schemas
 
-app = FastAPI(
-    title=f'{constants.APP_TITLE} API',
-    version=constants.APP_VERSION
-)
+app = FastAPI(title=f'{constants.APP_TITLE} API', version=constants.APP_VERSION)
 
 
-async def _echo_output(messages: AsyncIterator[models.Payload]):
+async def _stream_messages(messages: AsyncIterator[models.Payload]):
     async for msg in messages:
         yield msg.json()
         yield '\n'
@@ -26,8 +24,7 @@ def respond_with_error(err: BaseException, status_code=500) -> None:
 @lru_cache
 def load_config(profile_name: Optional[str] = None) -> models.Config:
     result = commands.GetConfigCommand(profile_name=profile_name).execute()
-    result.map_err(respond_with_error)
-    return result.unwrap()
+    return result.unwrap_or_else(respond_with_error)
 
 
 @app.get("/", response_model=schemas.ApiRoot)
@@ -37,11 +34,14 @@ def api_root(profile: Optional[str] = None) -> schemas.ApiRoot:
 
 
 @app.post("/produce/{topic}", response_model=models.ProducerPayload)
-async def produce(topic: str, message: types.JSONSerializable, profile: Optional[str] = None) -> StreamingResponse:
+async def produce(
+    topic: str, messages: List[models.JSONSerializable], profile: Optional[str] = None
+) -> StreamingResponse:
     config = load_config(profile_name=profile)
-    result = commands.ProduceCommand(config=config, topic=topic, messages=[message]).execute_async()
-    result.map_err(respond_with_error)
-    return StreamingResponse(result.map(_echo_output).unwrap(), media_type="application/json")
+    result = await commands.ProduceCommand(config=config, topic=topic, messages=messages).execute_async()
+    return StreamingResponse(
+        result.handle(_stream_messages, respond_with_error).unwrap(), media_type="application/json"
+    )
 
 
 @app.post("/consume/{topic}", response_model=models.ConsumerPayload)
@@ -50,16 +50,12 @@ async def consume(
     limit: int = 1,
     group_id: Optional[str] = None,
     webhook: Optional[str] = None,
-    profile: Optional[str] = None
+    profile: Optional[str] = None,
 ) -> StreamingResponse:
     config = load_config(profile_name=profile)
-    result = commands.ConsumeCommand(
-        config=config,
-        topics=[topic],
-        webhook=webhook,
-        group_id=group_id,
-        limit=limit
+    result = await commands.ConsumeCommand(
+        config=config, topics=[topic], webhook=webhook, group_id=group_id, limit=limit
     ).execute_async()
-    result.map_err(respond_with_error)
-    result = result.map(_echo_output)
-    return StreamingResponse(result.unwrap(), media_type="application/json")
+    return StreamingResponse(
+        result.handle(_stream_messages, respond_with_error).unwrap(), media_type="application/json"
+    )

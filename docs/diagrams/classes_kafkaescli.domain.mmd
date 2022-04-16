@@ -1,0 +1,62 @@
+classDiagram
+  class Config {
+    extra : str
+    use_enum_values : bool
+  }
+  class Config {
+    bootstrap_servers : str
+    middleware : List[Middleware]
+  }
+  class Config {
+    extra : str
+  }
+  class Config {
+    json_encoders : dict
+  }
+  class ConfigFile {
+    default_profile : Optional[str]
+    profiles : List[ConfigProfile]
+    version : int
+  }
+  class ConfigProfile {
+    config
+    name : str
+  }
+  class ConsumerPayload {
+  }
+  class DataModel {
+    uuid : UUID, UUID4
+  }
+  class Middleware {
+    hook_after_consume : Optional[str]
+    hook_before_produce : Optional[str]
+  }
+  class MiddlewareHook {
+    name
+  }
+  class Model {
+  }
+  class Payload {
+    key : Optional[JSONSerializable]
+    message : Union
+    metadata
+  }
+  class PayloadMetadata {
+    offset : int
+    partition : int
+    timestamp : int
+    topic : str
+  }
+  class ProducerPayload {
+  }
+  Config --|> Model
+  ConfigFile --|> Model
+  ConfigProfile --|> Model
+  ConsumerPayload --|> Payload
+  DataModel --|> Model
+  Middleware --|> Model
+  Payload --|> DataModel
+  PayloadMetadata --|> Model
+  ProducerPayload --|> Payload
+  Config --* ConfigProfile : config
+  PayloadMetadata --* Payload : metadata
