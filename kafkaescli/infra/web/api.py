@@ -11,9 +11,9 @@ from kafkaescli.infra.web import schemas
 app = FastAPI(title=f'{constants.APP_TITLE} API', version=constants.APP_VERSION)
 
 
-async def _stream_messages(messages: AsyncIterator[models.Payload]):
-    async for msg in messages:
-        yield msg.json()
+async def _stream_values(values: AsyncIterator[models.Payload]):
+    async for value in values:
+        yield value.json()
         yield '\n'
 
 
@@ -35,13 +35,11 @@ def api_root(profile: Optional[str] = None) -> schemas.ApiRoot:
 
 @app.post("/produce/{topic}", response_model=models.ProducerPayload)
 async def produce(
-    topic: str, messages: List[models.JSONSerializable], profile: Optional[str] = None
+    topic: str, values: List[models.JSONSerializable], profile: Optional[str] = None
 ) -> StreamingResponse:
     config = load_config(profile_name=profile)
-    result = await commands.ProduceCommand(config=config, topic=topic, messages=messages).execute_async()
-    return StreamingResponse(
-        result.handle(_stream_messages, respond_with_error).unwrap(), media_type="application/json"
-    )
+    result = await commands.ProduceCommand(config=config, topic=topic, values=values).execute_async()
+    return StreamingResponse(_stream_values(result.unwrap_or_else(respond_with_error)), media_type="application/json")
 
 
 @app.post("/consume/{topic}", response_model=models.ConsumerPayload)
@@ -56,6 +54,4 @@ async def consume(
     result = await commands.ConsumeCommand(
         config=config, topics=[topic], webhook=webhook, group_id=group_id, limit=limit
     ).execute_async()
-    return StreamingResponse(
-        result.handle(_stream_messages, respond_with_error).unwrap(), media_type="application/json"
-    )
+    return StreamingResponse(_stream_values(result.unwrap_or_else(respond_with_error)), media_type="application/json")
