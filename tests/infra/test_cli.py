@@ -50,6 +50,6 @@ def test_runserver(webserver):
     webserver.run.return_value = 0
     result = runner.invoke(cli.app, ["runserver",])
     webserver.run.assert_called_once_with(
-        "kafkaescli.infra.web:app", host='127.0.0.1', port=8000, reload=False, workers=None, log_config=None
+        "kafkaescli.infra.web:app", host='127.0.0.1', port=8000, reload=False, workers=1, log_level='info', log_config=None
     )
     assert result.exit_code == 0

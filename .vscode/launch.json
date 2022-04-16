@@ -21,7 +21,10 @@
             "args": [
                 "--config-file-path",
                 "examples/config.json",
-                "runserver"
+                "runserver",
+                "--reload",
+                "--log-config",
+                "examples/log.conf.json"
             ]
         },
         {

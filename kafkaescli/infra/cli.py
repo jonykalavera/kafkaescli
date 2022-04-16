@@ -109,10 +109,12 @@ def runserver(
     host: str = typer.Option("127.0.0.1", envvar=constants.KAFKAESCLI_SERVER_HOST),
     port: int = typer.Option(8000, envvar=constants.KAFKAESCLI_SERVER_PORT),
     reload: bool = typer.Option(False, envvar=constants.KAFKAESCLI_SERVER_AUTORELOAD),
-    workers: Optional[int] = typer.Option(None, envvar=constants.KAFKAESCLI_SERVER_WORKERS),
-    log_config: Optional[str] = typer.Option(None, envvar=constants.KAFKAESCLI_SEVER_LOG_INFO),
+    workers: Optional[int] = typer.Option(1, envvar=constants.KAFKAESCLI_SERVER_WORKERS),
+    log_level: str = typer.Option("info", envvar=constants.KAFKAESCLI_SEVER_LOG_LEVEL),
+    log_config: Optional[str] = typer.Option(None, envvar=constants.KAFKAESCLI_SEVER_LOG_CONFIG),
 ):
     """Run web interface."""
+    typer.secho(f"{constants.APP_TITLE} API {constants.APP_VERSION}: http://{host}:{port}/docs", fg=typer.colors.BRIGHT_GREEN)
     sys.exit(
         uvicorn.run(
             f"{constants.APP_PACKAGE}.infra.web:app",
@@ -120,6 +122,7 @@ def runserver(
             port=port,
             reload=reload,
             workers=workers,
+            log_level=log_level,
             log_config=log_config,
         )
     )
