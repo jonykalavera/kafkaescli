@@ -22,8 +22,8 @@ kafkaescli consume hello --metadata
 kafkaescli produce hello world
 # produce longer strings
 kafkaescli produce hello "world of kafka"
-# produce from stdin a message per line
-cat messages.json | kafkaescli produce hello --stdin
+# produce from stdin a value per line
+cat values.json | kafkaescli produce hello --stdin
 # produce to topic `world` form the output of a consumer of topic `hello`
 kafkaescli consume hello | kafkaescli produce world --stdin
 # produce `{"foo":"bar"}` to topic `hello`, with middleware
@@ -32,7 +32,7 @@ kafkaescli produce hello '{"foo":"bar"}' --middleware '{"hook_before_produce": "
 kafkaescli consume hello --middleware '{"hook_after_consume": "examples.json.hook_after_consume"}'
 # run the web api http://localhost:8000/docs
 kafkaescli runserver
-# POST consumed messages to WEBHOOK
+# POST consumed values to WEBHOOK
 kafkaescli consume hello --metadata --webhook https://myendpoint.example.com
 # For more details see
 kafkaescli --help

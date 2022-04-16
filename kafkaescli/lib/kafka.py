@@ -56,15 +56,15 @@ class Consumer:
 
     _consumer: AIOKafkaConsumer = field(init=False)
 
-    def consumer_record_to_payload(self, message: "ConsumerRecord") -> ConsumerPayload:
+    def consumer_record_to_payload(self, value: "ConsumerRecord") -> ConsumerPayload:
         return ConsumerPayload.parse_obj(
             dict(
                 metadata={
                     k: v if not isinstance(v, bytes) else v.decode("utf-8", "ignore")
-                    for k, v in asdict(message).items()
+                    for k, v in asdict(value).items()
                     if k != "value"
                 },
-                message=message.value,
+                value=value.value,
             )
         )
 
@@ -79,7 +79,7 @@ class Consumer:
         # Get cluster layout and join group `my-group`
         await self._consumer.start()
         try:
-            # Consume messages
+            # Consume values
             async for msg in self._consumer:
                 payload = self.consumer_record_to_payload(msg)
                 yield payload
@@ -107,7 +107,7 @@ class Producer:
                 self.topic, value=self.value, key=self.key, partition=self.partition
             )
         finally:
-            # Wait for all pending messages to be delivered or expire.
+            # Wait for all pending values to be delivered or expire.
             await self._producer.stop()
-        payload = ProducerPayload(metadata=meta._asdict(), message=self.value, key=self.key)
+        payload = ProducerPayload(metadata=meta._asdict(), value=self.value, key=self.key)
         return payload

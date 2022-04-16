@@ -12,7 +12,7 @@ class "Config" as kafkaescli.domain.models.Config #antiquewhite {
   middleware : List[Middleware]
 }
 class "ProduceParams" as kafkaescli.infra.web.schemas.ProduceParams #aliceblue {
-  messages : List[JSONSerializable]
+  values : List[JSONSerializable]
 }
 class "ProduceResponse" as kafkaescli.infra.web.schemas.ProduceResponse #aliceblue {
   params

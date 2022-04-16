@@ -38,6 +38,12 @@ diagrams.%:
 	sed -i -e 's/set namespaceSeparator none//g' docs/diagrams/classes_*.$*
 	rm -fr docs/diagrams/packages_*.$*
 
+py2puml:
+	py2puml kafkaescli/domain/ kafkaescli.domain > kafkaescli/kafkaescli.domain.puml
+	py2puml kafkaescli/app/ kafkaescli.app > kafkaescli/kafkaescli.app.puml
+	py2puml kafkaescli/lib/ kafkaescli.lib > kafkaescli/kafkaescli.lib.puml
+	py2puml kafkaescli/infra/ kafkaescli.infra > kafkaescli/kafkaescli.infra.puml
+
 pip-install: install-poetry
 	poetry export --dev --without-hashes -f requirements.txt -o requirements.txt
 	pip install -r requirements.txt

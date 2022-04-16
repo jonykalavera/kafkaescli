@@ -29,12 +29,12 @@ def _print_error_and_exit(error: BaseException):
 
 
 def _echo_output(
-    messages: Iterator[models.Payload],
+    values: Iterator[models.Payload],
     echo: bool = True,
     metadata: bool = False,
-    key: str = "message",
+    key: str = "value",
 ):
-    for msg in messages:
+    for msg in values:
         if not echo:
             continue
         if metadata:
@@ -54,7 +54,7 @@ def consume(
     auto_offset_reset: str = typer.Option(default='latest'),
     limit: int = typer.Option(default=-1, envvar=constants.KAFKAESCLI_CONSUMER_LIMIT),
 ):
-    """Consume messages from kafka topics."""
+    """Consume values from kafka topics."""
     result = commands.ConsumeCommand(
         config=config,
         topics=topics,
@@ -102,7 +102,7 @@ def produce(
         topic=topic,
         values=_get_values(stdin=stdin, file=file, values=values),
     ).execute()
-    echo_output = lambda x: _echo_output(x, metadata=metadata, key="message", echo=echo)
+    echo_output = lambda x: _echo_output(x, metadata=metadata, key="value", echo=echo)
     result.handle(echo_output, _print_error_and_exit)
 
 

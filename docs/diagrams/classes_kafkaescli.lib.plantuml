@@ -93,7 +93,7 @@ class "Consumer" as kafkaescli.lib.kafka.Consumer #aliceblue {
   enable_auto_commit : bool
   group_id : Optional[str]
   topics : List[str]
-  consumer_record_to_payload(message: 'ConsumerRecord') -> ConsumerPayload
+  consumer_record_to_payload(value: 'ConsumerRecord') -> ConsumerPayload
   execute() -> AsyncIterator[ConsumerPayload]
 }
 class "MiddlewareHook" as kafkaescli.domain.models.MiddlewareHook #cadetblue {

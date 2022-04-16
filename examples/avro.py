@@ -58,7 +58,7 @@ def serialize(records, schema_json):
 
 
 class AvroMiddleware(AsyncMiddleware):
-    async def hook_before_produce(self, message: JSONSerializable) -> JSONSerializable:
+    async def hook_before_produce(self, value: JSONSerializable) -> JSONSerializable:
         schema = json.dumps({
             "type" : "record",
             "namespace" : "app.domain",
@@ -68,10 +68,10 @@ class AvroMiddleware(AsyncMiddleware):
                 { "name" : "Age" , "type" : "int" }
             ]
         })
-        message = serialize([json.loads(str(message))], schema)
-        return message
+        value = serialize([json.loads(str(value))], schema)
+        return value
 
 
     async def hook_after_consume(self, payload: ConsumerPayload) -> ConsumerPayload:
-        payload.message = deserialize_first(payload.message)
+        payload.value = deserialize_first(payload.value)
         return payload

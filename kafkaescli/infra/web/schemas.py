@@ -10,7 +10,7 @@ class APISchema(BaseModel):
 
 
 class ProduceParams(APISchema):
-    messages: List[JSONSerializable]
+    values: List[JSONSerializable]
 
 
 class ProduceResponse(APISchema):

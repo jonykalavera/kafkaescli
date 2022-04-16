@@ -39,8 +39,8 @@ class "Model" as kafkaescli.domain.models.Model #aliceblue {
 }
 class "Payload" as kafkaescli.domain.models.Payload #aliceblue {
   key : Optional[JSONSerializable]
-  message : Union
   metadata
+  value : Union
 }
 class "PayloadMetadata" as kafkaescli.domain.models.PayloadMetadata #aliceblue {
   offset : int

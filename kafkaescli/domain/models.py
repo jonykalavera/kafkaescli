@@ -64,7 +64,7 @@ class PayloadMetadata(Model):
 
 class Payload(DataModel):
     metadata: PayloadMetadata
-    message: JSONSerializable
+    value: JSONSerializable
     key: Optional[JSONSerializable] = fields.Field(default=None)
 
     class Config:

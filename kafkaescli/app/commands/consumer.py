@@ -50,9 +50,9 @@ class ConsumeCommand(AsyncCommand):
                 break
             yield value
 
-    async def _process_messages(self, messages):
+    async def _process_values(self, values):
         async with self._webhook.context() as callback:
-            async for payload in messages:
+            async for payload in values:
                 logger.debug("consumed: %r", payload)
                 payload = await self._hook_after_consume.execute(payload)
                 await callback.execute(payload=payload)
@@ -60,5 +60,5 @@ class ConsumeCommand(AsyncCommand):
 
     @as_result(ImportError, *KAFKA_EXCEPTIONS)
     async def execute_async(self) -> AsyncIterator[ConsumerPayload]:
-        messages = self._consumer.execute()
-        return self._process_messages(self._take_limit(messages))
+        values = self._consumer.execute()
+        return self._process_values(self._take_limit(values))
