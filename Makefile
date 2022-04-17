@@ -70,5 +70,5 @@ pipeline-release.%: pip-install groom build
 	$(MAKE) bump.$*
 	poetry publish --username=__token__ --password=$$PYPI_API_TOKEN
 
-pipeline-build-docs:
-	cd docs/ && make html
+pipeline-build-docs: diagrams.plantuml diagrams.mmd
+	cd docs/ && $(MAKE) html

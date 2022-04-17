@@ -26,7 +26,7 @@ All text files are expected to be encoded in UTF-8.
 # Code practices
 
 It takes time to write comprehensive guidelines.
-To save time (my writing time and your reading time), I tried to make it short so my best advice is _go have a look at the production and test codes and try to follow the conventions you draw from what you [see](docs/diagrams/)_ 🙂
+To save time (my writing time and your reading time), I tried to make it short so my best advice is _go have a look at the production and test codes and try to follow the conventions you draw from what you see_ 🙂
 
 ## Unit tests
 
