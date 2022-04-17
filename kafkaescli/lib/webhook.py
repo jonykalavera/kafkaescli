@@ -1,7 +1,7 @@
 import logging
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import AsyncGenerator, Optional
 
 import aiohttp
 
@@ -16,7 +16,7 @@ class WebhookHandler:
     _session: aiohttp.ClientSession = field(init=False)
 
     @asynccontextmanager
-    async def context(self):
+    async def context(self) -> AsyncGenerator['WebhookHandler', None]:
         try:
             self._session = aiohttp.ClientSession(raise_for_status=True)
             yield self

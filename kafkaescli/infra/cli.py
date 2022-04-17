@@ -1,7 +1,6 @@
 import json
 import logging
 import sys
-from functools import partial
 from typing import Iterator, List, Optional
 
 import typer
@@ -9,9 +8,9 @@ import uvicorn
 
 from kafkaescli.app import commands
 from kafkaescli.domain import constants, models
-from kafkaescli.lib.middleware import MiddlewarePipeline
 from kafkaescli.lib.results import as_result
-from kafkaescli.lib.webhook import WebhookHandler
+from kafkaescli import containers, services
+from dependency_injector.wiring import Provide, inject
 
 app = typer.Typer()
 config = models.Config()
@@ -43,6 +42,10 @@ def _echo_output(
             output = getattr(msg, key)
         typer.echo(output)
 
+@inject
+def _consume(cmd: commands.ConsumeCommand, service: services.ConsumeService = Provide[containers.Container.consumer_service]):
+    result = service.execute(cmd=cmd)
+    return result
 
 @app.command()
 def consume(
@@ -55,14 +58,15 @@ def consume(
     limit: int = typer.Option(default=-1, envvar=constants.KAFKAESCLI_CONSUMER_LIMIT),
 ):
     """Consume values from kafka topics."""
-    result = commands.ConsumeCommand(
+    cmd = commands.ConsumeCommand(
         config=config,
         topics=topics,
         group_id=group_id,
         auto_offset_reset=auto_offset_reset,
         limit=limit,
         webhook=webhook,
-    ).execute()
+    )
+    result = _consume(cmd=cmd)
     echo_output = lambda m: _echo_output(m, metadata=metadata, echo=echo)
     result.handle(echo_output, _print_error_and_exit)
 
@@ -156,3 +160,6 @@ def main(
         .execute()
         .unwrap_or_else(_print_error_and_exit)
     )
+    container = containers.Container()
+    container.init_resources()
+    container.wire(modules=[__name__])
