@@ -16,7 +16,7 @@ from typing import (
 
 from kafkaescli import constants
 from kafkaescli.core.consumer.models import ConsumerPayload
-from kafkaescli.core.services import AsyncService
+from kafkaescli.core.shared.services import AsyncService
 from kafkaescli.lib.results import Result
 
 
