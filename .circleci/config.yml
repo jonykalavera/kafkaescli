@@ -104,16 +104,3 @@ workflows:
       - docs-deploy:
           requires:
             - docs-build
-  docker:
-    jobs:
-      - build-docker:
-          filters:
-            tags:
-              only: /^\d+\.\d+\.\d+$/
-      - hold:
-          type: approval
-          requires:
-           - build-docker
-      - release-docker:
-          requires:
-            - hold
