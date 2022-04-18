@@ -59,7 +59,7 @@ ignore_missing_imports = true
 ##############################################################################
 [tool.poetry]
 name = "kafkaescli"
-version = "0.1.5"
+version = "0.1.6"
 description = "A magical kafka command line interface."
 repository = "https://github.com/jonykalavera/kafkaescli"
 readme = "README.md"
