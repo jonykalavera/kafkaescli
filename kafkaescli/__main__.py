@@ -1,5 +1,6 @@
 """ Module execution.
 """
-from .infra.cli import app
+from .interface.cli import app
 
-app()
+if __name__ == "__main__":
+    app()

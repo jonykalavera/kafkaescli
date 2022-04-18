@@ -36,7 +36,7 @@ jobs:
           command: make pip-install
       - run:
           name: Build docs
-          command: "cd docs/ && make html"
+          command: "make pipeline-build-docs"
       - persist_to_workspace:
           root: docs/_build
           paths:

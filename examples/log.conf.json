@@ -17,7 +17,8 @@
     "uvicorn": {
       "error": {
         "propagate": true
-      }
+      },
+      "level": "ERROR"
     },
     "aiokafka": {
         "level": "ERROR"

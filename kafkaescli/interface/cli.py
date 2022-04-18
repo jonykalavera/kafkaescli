@@ -1,21 +1,18 @@
-import json
-import logging
 import sys
-from functools import partial
-from typing import Iterator, List, Optional
+from typing import Iterator, List, Optional, Union
 
 import typer
 import uvicorn
 
-from kafkaescli.app import commands
-from kafkaescli.domain import constants, models
-from kafkaescli.lib.middleware import MiddlewarePipeline
-from kafkaescli.lib.results import as_result
-from kafkaescli.lib.webhook import WebhookHandler
+from kafkaescli import constants
+from kafkaescli.core.consumer.models import ConsumerPayload
+from kafkaescli.core.models import JSONSerializable
+from kafkaescli.core.producer.models import ProducerPayload
+from kafkaescli.infra import containers
 
 app = typer.Typer()
-config = models.Config()
-logger = logging.getLogger(__name__)
+container = containers.Container()
+Payload = Union[ConsumerPayload, ProducerPayload]
 
 
 def _print_error_and_exit(error: BaseException):
@@ -29,7 +26,7 @@ def _print_error_and_exit(error: BaseException):
 
 
 def _echo_output(
-    values: Iterator[models.Payload],
+    values: Iterator[Payload],
     echo: bool = True,
     metadata: bool = False,
     key: str = "value",
@@ -55,8 +52,7 @@ def consume(
     limit: int = typer.Option(default=-1, envvar=constants.KAFKAESCLI_CONSUMER_LIMIT),
 ):
     """Consume values from kafka topics."""
-    result = commands.ConsumeCommand(
-        config=config,
+    result = container.consume_service(
         topics=topics,
         group_id=group_id,
         auto_offset_reset=auto_offset_reset,
@@ -77,8 +73,8 @@ def _get_lines(file_path="-") -> Iterator[str]:
 
 
 def _get_values(
-    stdin: bool, file: Optional[str], values: Optional[List[models.JSONSerializable]] = None
-) -> List[models.JSONSerializable]:
+    stdin: bool, file: Optional[str], values: Optional[List[JSONSerializable]] = None
+) -> List[JSONSerializable]:
     if stdin:
         values = list(_get_lines("-"))
     elif file is not None:
@@ -97,8 +93,7 @@ def produce(
 ):
     """Produce values to a kafka topic."""
     global config
-    result = commands.ProduceCommand(
-        config=config,
+    result = container.produce_service(
         topic=topic,
         values=_get_values(stdin=stdin, file=file, values=values),
     ).execute()
@@ -121,7 +116,7 @@ def runserver(
     )
     sys.exit(
         uvicorn.run(
-            f"{constants.APP_PACKAGE}.infra.web:app",
+            f"{constants.APP_PACKAGE}.interface.web:app",
             host=host,
             port=port,
             reload=reload,
@@ -142,17 +137,14 @@ def main(
     middleware: Optional[List[str]] = typer.Option(default=None, envvar=constants.KAFKAESCLI_MIDDLEWARE),
 ):
     """A magical kafka command line interface."""
-    global config
-    global middleware_pipeline
-    safe_json_loads = as_result(json.JSONDecodeError)(json.loads)
-    overrides = dict(
-        bootstrap_servers=bootstrap_servers,
-        middleware=[safe_json_loads(m).unwrap_or_else(_print_error_and_exit) for m in middleware]
-        if middleware
-        else middleware,
+    global container
+    container = containers.Container(
+        profile_name=profile,
+        config_file_path=config_file_path,
+        overrides=dict(
+            bootstrap_servers=bootstrap_servers,
+            middleware=middleware,
+        ),
     )
-    config = (
-        commands.GetConfigCommand(config_file_path=config_file_path, profile_name=profile, overrides=overrides)
-        .execute()
-        .unwrap_or_else(_print_error_and_exit)
-    )
+    container.init_resources()
+    container.wire(modules=[__name__])

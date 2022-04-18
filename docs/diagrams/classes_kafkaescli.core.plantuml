@@ -1,0 +1,161 @@
+@startuml classes_kafkaescli.core
+
+class "AsyncHookCallback" as kafkaescli.core.middleware.services.AsyncHookCallback #aliceblue {
+}
+class "AsyncService" as kafkaescli.core.services.AsyncService #aliceblue {
+  execute() -> Result[R, BaseException]
+}
+class "Config" as kafkaescli.core.models.Model.Config #aliceblue {
+  extra : str
+  use_enum_values : bool
+}
+class "Config" as kafkaescli.core.consumer.models.PayloadMetadata.Config #aliceblue {
+  extra : str
+}
+class "Config" as kafkaescli.core.consumer.models.ConsumerPayload.Config #aliceblue {
+  json_encoders : dict
+}
+class "Config" as kafkaescli.core.producer.models.PayloadMetadata.Config #aliceblue {
+  extra : str
+}
+class "Config" as kafkaescli.core.producer.models.ProducerPayload.Config #aliceblue {
+  json_encoders : dict
+}
+class "ConfigFile" as kafkaescli.core.config.models.ConfigFile #aliceblue {
+  default_profile : Optional[str]
+  profiles : List[ConfigProfile]
+  version : int
+}
+class "ConfigFileService" as kafkaescli.core.config.services.ConfigFileService #aliceblue {
+  config_file_path : Optional[str]
+  execute() -> ConfigFile
+}
+class "ConfigProfile" as kafkaescli.core.config.models.ConfigProfile #aliceblue {
+  config
+  name : str
+}
+class "ConfigService" as kafkaescli.core.config.services.ConfigService #aliceblue {
+  config_file_service
+  overrides : Optional[dict]
+  profile_name : Optional[str]
+  execute() -> Settings
+}
+class "ConsumeService" as kafkaescli.core.consumer.services.ConsumeService #aliceblue {
+  auto_commit_interval_ms : int
+  auto_offset_reset : str
+  consumer
+  group_id : Optional[str]
+  hook_after_consume
+  limit : int
+  topics : List[str]
+  webhook : Optional[str]
+  webhook_handler
+  execute_async() -> Result[AsyncIterator[ConsumerPayload], BaseException]
+}
+class "ConsumerPayload" as kafkaescli.core.consumer.models.ConsumerPayload #aliceblue {
+  key : Optional[JSONSerializable]
+  metadata
+  value : Union
+}
+class "ConsumerProtocol" as kafkaescli.core.consumer.services.ConsumerProtocol #aliceblue {
+  execute(topics: List[str], group_id: Optional[str], enable_auto_commit: bool, auto_offset_reset: str, auto_commit_interval_ms: int) -> Result[AsyncIterator[ConsumerPayload], BaseException]
+}
+class "DataModel" as kafkaescli.core.models.DataModel #aliceblue {
+  uuid
+}
+class "HookAfterConsumeProtocol" as kafkaescli.core.consumer.services.HookAfterConsumeProtocol #aliceblue {
+  execute(bundle: ConsumerPayload) -> Result[ConsumerPayload, BaseException]
+}
+class "HookBeforeProduceProtocol" as kafkaescli.core.producer.services.HookBeforeProduceProtocol #aliceblue {
+  call(bundle: JSONSerializable) -> Result[JSONSerializable, BaseException]
+  execute_async() -> Result['HookBeforeProduceProtocol', BaseException]
+}
+class "Middleware" as kafkaescli.core.middleware.models.Middleware #aliceblue {
+  hook_after_consume : Optional[str]
+  hook_before_produce : Optional[str]
+}
+class "MiddlewareHook" as kafkaescli.core.middleware.models.MiddlewareHook #aliceblue {
+  name
+}
+class "MiddlewareService" as kafkaescli.core.middleware.services.MiddlewareService #aliceblue {
+  callback
+  config_service
+  extra_kwargs : Optional[Dict[str, Any]]
+  call(bundle: Bundle) -> Bundle
+  execute_async() -> 'MiddlewareService'
+}
+class "Model" as kafkaescli.core.models.Model #aliceblue {
+}
+class "PayloadMetadata" as kafkaescli.core.consumer.models.PayloadMetadata #aliceblue {
+  offset : int
+  partition : int
+  timestamp : int
+  topic : str
+}
+class "PayloadMetadata" as kafkaescli.core.producer.models.PayloadMetadata #aliceblue {
+  offset : int
+  partition : int
+  timestamp : int
+  topic : str
+}
+class "ProduceService" as kafkaescli.core.producer.services.ProduceService #aliceblue {
+  hook_before_produce
+  keys : Optional[List[JSONSerializable]]
+  partition : int
+  producer
+  topic : str
+  values : List[JSONSerializable]
+  execute_async() -> AsyncIterator[ProducerPayload]
+}
+class "ProducerPayload" as kafkaescli.core.producer.models.ProducerPayload #aliceblue {
+  key : Optional[JSONSerializable]
+  metadata
+  value : Union
+}
+class "ProducerProtocol" as kafkaescli.core.producer.services.ProducerProtocol #aliceblue {
+  execute(topic: str, value: bytes, key: Optional[bytes], partition) -> Result[ProducerPayload, BaseException]
+}
+class "Service" as kafkaescli.core.services.Service #aliceblue {
+  execute_async() -> Result[R, BaseException]
+}
+class "ServiceInterface" as kafkaescli.core.services.ServiceInterface #aliceblue {
+  execute() -> Result[R, BaseException]
+  execute_async() -> Result[R, BaseException]
+}
+class "Settings" as kafkaescli.core.config.models.Settings #aliceblue {
+  bootstrap_servers : str
+  middleware : List[Middleware]
+}
+class "SyncHookCallback" as kafkaescli.core.middleware.services.SyncHookCallback #aliceblue {
+}
+class "WebhookHandlerProtocol" as kafkaescli.core.consumer.services.WebhookHandlerProtocol #aliceblue {
+  context() -> AsyncContextManager['WebhookHandlerProtocol']
+  execute(webhook: Optional[str], payload: ConsumerPayload) -> Result[None, BaseException]
+}
+kafkaescli.core.config.models.ConfigFile --|> kafkaescli.core.models.Model
+kafkaescli.core.config.models.ConfigProfile --|> kafkaescli.core.models.Model
+kafkaescli.core.config.services.ConfigFileService --|> kafkaescli.core.services.Service
+kafkaescli.core.config.services.ConfigService --|> kafkaescli.core.services.Service
+kafkaescli.core.consumer.models.ConsumerPayload --|> kafkaescli.core.models.DataModel
+kafkaescli.core.consumer.models.PayloadMetadata --|> kafkaescli.core.models.Model
+kafkaescli.core.consumer.services.ConsumeService --|> kafkaescli.core.services.AsyncService
+kafkaescli.core.middleware.models.Middleware --|> kafkaescli.core.models.Model
+kafkaescli.core.middleware.services.MiddlewareService --|> kafkaescli.core.services.AsyncService
+kafkaescli.core.models.DataModel --|> kafkaescli.core.models.Model
+kafkaescli.core.producer.models.PayloadMetadata --|> kafkaescli.core.models.Model
+kafkaescli.core.producer.models.ProducerPayload --|> kafkaescli.core.models.DataModel
+kafkaescli.core.producer.services.ProduceService --|> kafkaescli.core.services.AsyncService
+kafkaescli.core.services.AsyncService --|> kafkaescli.core.services.ServiceInterface
+kafkaescli.core.services.Service --|> kafkaescli.core.services.ServiceInterface
+kafkaescli.core.config.models.Settings --* kafkaescli.core.config.models.ConfigProfile : config
+kafkaescli.core.config.services.ConfigFileService --* kafkaescli.core.config.services.ConfigService : config_file_service
+kafkaescli.core.config.services.ConfigService --* kafkaescli.core.middleware.services.MiddlewareService : config_service
+kafkaescli.core.consumer.models.PayloadMetadata --* kafkaescli.core.consumer.models.ConsumerPayload : metadata
+kafkaescli.core.consumer.services.ConsumerProtocol --* kafkaescli.core.consumer.services.ConsumeService : consumer
+kafkaescli.core.consumer.services.HookAfterConsumeProtocol --* kafkaescli.core.consumer.services.ConsumeService : hook_after_consume
+kafkaescli.core.consumer.services.WebhookHandlerProtocol --* kafkaescli.core.consumer.services.ConsumeService : webhook_handler
+kafkaescli.core.middleware.models.MiddlewareHook --* kafkaescli.core.middleware.services.MiddlewareService : callback
+kafkaescli.core.producer.models.PayloadMetadata --* kafkaescli.core.producer.models.ProducerPayload : metadata
+kafkaescli.core.producer.services.HookBeforeProduceProtocol --* kafkaescli.core.producer.services.ProduceService : hook_before_produce
+kafkaescli.core.producer.services.ProducerProtocol --* kafkaescli.core.producer.services.ProduceService : producer
+@enduml

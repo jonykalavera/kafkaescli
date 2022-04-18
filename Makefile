@@ -31,10 +31,10 @@ bump.%:
 
 diagrams.%:
 	rm -fr docs/diagrams/*.$*
-	pyreverse -d ./docs/diagrams --colorized -o "$*" -p kafkaescli.domain kafkaescli.domain
-	pyreverse -d ./docs/diagrams --colorized -o "$*" -s 1 -p kafkaescli.app kafkaescli.app
-	pyreverse -d ./docs/diagrams --colorized -o "$*" -s 1 -p kafkaescli.lib kafkaescli.lib
+	pyreverse -d ./docs/diagrams --colorized -o "$*" -p kafkaescli.core kafkaescli.core
 	pyreverse -d ./docs/diagrams --colorized -o "$*" -s 1 -p kafkaescli.infra kafkaescli.infra
+	pyreverse -d ./docs/diagrams --colorized -o "$*" -s 1 -p kafkaescli.interface kafkaescli.interface
+	pyreverse -d ./docs/diagrams --colorized -o "$*" -s 1 -p kafkaescli.lib kafkaescli.lib
 	sed -i -e 's/set namespaceSeparator none//g' docs/diagrams/classes_*.$*
 	rm -fr docs/diagrams/packages_*.$*
 
@@ -42,7 +42,7 @@ py2puml:
 	py2puml kafkaescli/domain/ kafkaescli.domain > kafkaescli/kafkaescli.domain.puml
 	py2puml kafkaescli/app/ kafkaescli.app > kafkaescli/kafkaescli.app.puml
 	py2puml kafkaescli/lib/ kafkaescli.lib > kafkaescli/kafkaescli.lib.puml
-	py2puml kafkaescli/infra/ kafkaescli.infra > kafkaescli/kafkaescli.infra.puml
+	py2puml kafkaescli/interface/ kafkaescli.interface > kafkaescli/kafkaescli.interface.puml
 
 pip-install: install-poetry
 	poetry export --dev --without-hashes -f requirements.txt -o requirements.txt
@@ -70,5 +70,5 @@ pipeline-release.%: pip-install groom build
 	$(MAKE) bump.$*
 	poetry publish --username=__token__ --password=$$PYPI_API_TOKEN
 
-pipeline-build-docs:
-	cd docs/ && make html
+pipeline-build-docs: diagrams.plantuml diagrams.mmd
+	cd docs/ && $(MAKE) html
