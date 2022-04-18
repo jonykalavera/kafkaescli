@@ -98,9 +98,12 @@ workflows:
       - release-patch:
           requires:
             - hold
+      - docs-build:
+          requires:
+            - release-patch
       - docs-deploy:
           requires:
-            - hold
+            - docs-build
   docker:
     jobs:
       - build-docker:
