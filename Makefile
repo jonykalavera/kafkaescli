@@ -18,9 +18,6 @@ install-poetry:
 	pip install pip --upgrade
 	pip install poetry==$(POETRY_VERSION)
 
-build:
-	poetry build
-
 install:
 	poetry install
 
@@ -74,3 +71,6 @@ pipeline-release.%: pip-install groom
 	git config --global user.name "ci-build"
 	$(MAKE) bump.$*
 	poetry publish --build --username=__token__ --password=$$PYPI_API_TOKEN
+
+pipeline-build-docs: diagrams.plantuml diagrams.mmd
+	cd docs/ && $(MAKE) html
