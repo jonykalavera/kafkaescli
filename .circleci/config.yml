@@ -21,6 +21,9 @@ jobs:
     docker:
       - image: cimg/python:3.10
     steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "bd:ad:32:98:4a:a7:df:74:37:56:e9:0f:7b:71:a8:0a"
       - checkout
       - run:
           name: "release patch"
