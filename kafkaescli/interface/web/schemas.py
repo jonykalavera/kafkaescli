@@ -2,7 +2,9 @@ from typing import List
 
 from pydantic import BaseModel, fields
 
-from kafkaescli.domain.models import Config, JSONSerializable, ProducerPayload
+from kafkaescli.core.config.models import Settings
+from kafkaescli.core.models import JSONSerializable
+from kafkaescli.core.producer.models import ProducerPayload
 
 
 class APISchema(BaseModel):
@@ -21,4 +23,4 @@ class ProduceResponse(APISchema):
 class ApiRoot(APISchema):
     name: str
     version: str
-    config: Config
+    config: Settings
