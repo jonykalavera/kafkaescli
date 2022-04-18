@@ -68,9 +68,9 @@ docker-test:
 pipeline-test: pip-install test
 	coveralls
 
-pipeline-release.%: pip-install groom diagrams.plantuml diagrams.mmd build
+pipeline-release.%: pip-install groom
 	cd docs/ && $(MAKE) html
 	git config --global user.email "ci-build@kafkaescli.pipeline"
 	git config --global user.name "ci-build"
 	$(MAKE) bump.$*
-	poetry publish --username=__token__ --password=$$PYPI_API_TOKEN
+	poetry publish --build --username=__token__ --password=$$PYPI_API_TOKEN
