@@ -13,12 +13,7 @@ classDiagram
     params
     results : List[ProducerPayload]
   }
-  class Settings {
-    bootstrap_servers : str
-    middleware : List[Middleware]
-  }
   ApiRoot --|> APISchema
   ProduceParams --|> APISchema
   ProduceResponse --|> APISchema
-  Settings --* ApiRoot : config
   ProduceParams --* ProduceResponse : params
