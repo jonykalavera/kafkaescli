@@ -1,26 +1,121 @@
 @startuml classes_kafkaescli.infra
 
-class "APISchema" as kafkaescli.infra.web.schemas.APISchema #aliceblue {
+class "AIOKafkaConsumer" as aiokafka.consumer.consumer.AIOKafkaConsumer #antiquewhite {
+  assign(partitions)
+  assignment()
+  beginning_offsets(partitions)
+  commit(offsets)
+  committed(partition)
+  end_offsets(partitions)
+  getmany()
+  getone()
+  highwater(partition)
+  last_poll_timestamp(partition)
+  last_stable_offset(partition)
+  offsets_for_times(timestamps)
+  partitions_for_topic(topic)
+  pause()
+  paused()
+  position(partition)
+  resume()
+  seek(partition, offset)
+  seek_to_beginning()
+  seek_to_committed()
+  seek_to_end()
+  start()
+  stop()
+  subscribe(topics, pattern, listener)
+  subscription()
+  topics()
+  unsubscribe()
 }
-class "ApiRoot" as kafkaescli.infra.web.schemas.ApiRoot #aliceblue {
-  config
-  name : str
-  version : str
+class "AIOKafkaProducer" as aiokafka.producer.producer.AIOKafkaProducer #aquamarine {
+  client : AIOKafkaClient
+  abort_transaction()
+  begin_transaction()
+  commit_transaction()
+  create_batch()
+  flush()
+  partitions_for(topic)
+  send(topic, value, key, partition, timestamp_ms, headers)
+  send_and_wait(topic, value, key, partition, timestamp_ms, headers)
+  send_batch(batch, topic)
+  send_offsets_to_transaction(offsets, group_id)
+  start()
+  stop()
+  transaction()
 }
-class "Config" as kafkaescli.domain.models.Config #antiquewhite {
+class "ClientSession" as aiohttp.client.ClientSession #burlywood {
+  ATTRS : frozenset
+  auth
+  auto_decompress
+  closed
+  connector
+  connector_owner
+  cookie_jar
+  headers
+  json_serialize
+  loop
+  raise_for_status
+  requote_redirect_url
+  skip_auto_headers
+  timeout
+  trace_configs
+  trust_env
+  version
+  close() -> None
+  delete(url: StrOrURL) -> '_RequestContextManager'
+  detach() -> None
+  get(url: StrOrURL) -> '_RequestContextManager'
+  head(url: StrOrURL) -> '_RequestContextManager'
+  options(url: StrOrURL) -> '_RequestContextManager'
+  patch(url: StrOrURL) -> '_RequestContextManager'
+  post(url: StrOrURL) -> '_RequestContextManager'
+  put(url: StrOrURL) -> '_RequestContextManager'
+  request(method: str, url: StrOrURL) -> '_RequestContextManager'
+  ws_connect(url: StrOrURL) -> '_WSRequestContextManager'
+}
+class "ConfigService" as kafkaescli.core.config.services.ConfigService #cadetblue {
+  config_file_service : ConfigFileService
+  overrides : Optional[dict]
+  profile_name : Optional[str]
+  execute() -> Settings
+}
+class "Consumer" as kafkaescli.infra.kafka.Consumer #aliceblue {
+  config_service
+  consumer_record_to_payload(value: 'ConsumerRecord') -> ConsumerPayload
+  execute(topics: List[str], group_id: Optional[str], enable_auto_commit: bool, auto_offset_reset: str, auto_commit_interval_ms: int) -> AsyncIterator[ConsumerPayload]
+}
+class "Container" as kafkaescli.infra.containers.Container #aliceblue {
+  config_file_path
+  config_file_service
+  config_service
+  consume_service
+  consumer
+  hook_after_consume
+  hook_before_produce
+  overrides
+  produce_service
+  producer
+  profile_name
+  webhook_handler
+}
+class "Producer" as kafkaescli.infra.kafka.Producer #aliceblue {
+  config_service
+  execute(topic: str, value: bytes, key: Optional[bytes], partition) -> ProducerPayload
+}
+class "Settings" as kafkaescli.core.config.models.Settings #cadetblue {
   bootstrap_servers : str
   middleware : List[Middleware]
 }
-class "ProduceParams" as kafkaescli.infra.web.schemas.ProduceParams #aliceblue {
-  values : List[JSONSerializable]
+class "WebhookHandler" as kafkaescli.infra.webhook.WebhookHandler #aliceblue {
+  context() -> AsyncGenerator['WebhookHandler', None]
+  execute(webhook: Optional[str], payload: ConsumerPayload) -> None
 }
-class "ProduceResponse" as kafkaescli.infra.web.schemas.ProduceResponse #aliceblue {
-  params
-  results : List[ProducerPayload]
-}
-kafkaescli.infra.web.schemas.ApiRoot --|> kafkaescli.infra.web.schemas.APISchema
-kafkaescli.infra.web.schemas.ProduceParams --|> kafkaescli.infra.web.schemas.APISchema
-kafkaescli.infra.web.schemas.ProduceResponse --|> kafkaescli.infra.web.schemas.APISchema
-kafkaescli.domain.models.Config --* kafkaescli.infra.web.schemas.ApiRoot : config
-kafkaescli.infra.web.schemas.ProduceParams --* kafkaescli.infra.web.schemas.ProduceResponse : params
+aiohttp.client.ClientSession --* kafkaescli.infra.webhook.WebhookHandler : _session
+aiokafka.consumer.consumer.AIOKafkaConsumer --* kafkaescli.infra.kafka.Consumer : _consumer
+aiokafka.producer.producer.AIOKafkaProducer --* kafkaescli.infra.kafka.Producer : _producer
+kafkaescli.core.config.models.Settings --* kafkaescli.infra.kafka.Producer : _config
+kafkaescli.core.config.services.ConfigService --* kafkaescli.infra.kafka.Consumer : config_service
+kafkaescli.core.config.services.ConfigService --* kafkaescli.infra.kafka.Producer : config_service
 @enduml

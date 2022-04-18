@@ -20,12 +20,15 @@ from aiokafka.errors import (
     UnsupportedVersionError,
 )
 
-from kafkaescli.domain.constants import DEFAULT_BOOTSTRAP_SERVERS
+from kafkaescli.core.config.models import Settings
+from kafkaescli.core.config.services import ConfigService
 
 if TYPE_CHECKING:
     from aiokafka.structs import ConsumerRecord
 
-from kafkaescli.domain.models import ConsumerPayload, ProducerPayload
+from kafkaescli.core.consumer.models import ConsumerPayload
+from kafkaescli.core.producer.models import ProducerPayload
+from kafkaescli.lib.results import as_result
 
 KAFKA_EXCEPTIONS = (
     KafkaError,
@@ -48,12 +51,7 @@ KAFKA_EXCEPTIONS = (
 
 @dataclass
 class Consumer:
-    topics: List[str]
-    group_id: Optional[str] = None
-    enable_auto_commit: bool = False
-    auto_offset_reset: str = 'latest'
-    bootstrap_servers: str = DEFAULT_BOOTSTRAP_SERVERS
-
+    config_service: ConfigService
     _consumer: AIOKafkaConsumer = field(init=False)
 
     def consumer_record_to_payload(self, value: "ConsumerRecord") -> ConsumerPayload:
@@ -68,13 +66,23 @@ class Consumer:
             )
         )
 
-    async def execute(self) -> AsyncIterator[ConsumerPayload]:
+    @as_result(*KAFKA_EXCEPTIONS)
+    async def execute(
+        self,
+        topics: List[str],
+        group_id: Optional[str] = None,
+        enable_auto_commit: bool = False,
+        auto_offset_reset: str = 'latest',
+        auto_commit_interval_ms: int = 1000,
+    ) -> AsyncIterator[ConsumerPayload]:
+        config = self.config_service.execute().unwrap()
         self._consumer = AIOKafkaConsumer(
-            *self.topics,
-            group_id=self.group_id,
-            enable_auto_commit=self.enable_auto_commit,
-            auto_offset_reset=self.auto_offset_reset,
-            bootstrap_servers=self.bootstrap_servers,
+            bootstrap_servers=config.bootstrap_servers,
+            *topics,
+            group_id=group_id,
+            enable_auto_commit=enable_auto_commit,
+            auto_offset_reset=auto_offset_reset,
+            auto_commit_interval_ms=auto_commit_interval_ms,
         )
         # Get cluster layout and join group `my-group`
         await self._consumer.start()
@@ -91,23 +99,20 @@ class Consumer:
 
 @dataclass
 class Producer:
-    bootstrap_servers: str
-    topic: str
-    value: bytes
-    key: Optional[bytes] = None
-    partition = 1
+    config_service: ConfigService
+    _config: Settings = field(init=False)
     _producer: AIOKafkaProducer = field(init=False)
 
-    async def execute(self) -> ProducerPayload:
-        self._producer = AIOKafkaProducer(bootstrap_servers=self.bootstrap_servers)
-        # Get cluster layout and initial topic/partition leadership information
+    def __post_init__(self):
+        self._config = self.config_service.execute().unwrap()
+
+    @as_result(*KAFKA_EXCEPTIONS)
+    async def execute(self, topic: str, value: bytes, key: Optional[bytes] = None, partition=1) -> ProducerPayload:
+        self._producer = AIOKafkaProducer(bootstrap_servers=self._config.bootstrap_servers)
         await self._producer.start()
         try:
-            meta = await self._producer.send_and_wait(
-                self.topic, value=self.value, key=self.key, partition=self.partition
-            )
+            meta = await self._producer.send_and_wait(topic, value=value, key=key, partition=partition)
         finally:
-            # Wait for all pending values to be delivered or expire.
             await self._producer.stop()
-        payload = ProducerPayload(metadata=meta._asdict(), value=self.value, key=self.key)
+        payload = ProducerPayload(metadata=meta._asdict(), value=value, key=key)
         return payload

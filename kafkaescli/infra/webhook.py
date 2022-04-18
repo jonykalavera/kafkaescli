@@ -5,14 +5,14 @@ from typing import AsyncGenerator, Optional
 
 import aiohttp
 
-from kafkaescli.domain.models import ConsumerPayload
+from kafkaescli.core.consumer.models import ConsumerPayload
+from kafkaescli.lib.results import as_result
 
 logger = logging.getLogger(__name__)
 
 
 @dataclass
 class WebhookHandler:
-    webhook: Optional[str]
     _session: aiohttp.ClientSession = field(init=False)
 
     @asynccontextmanager
@@ -23,9 +23,10 @@ class WebhookHandler:
         finally:
             await self._session.close()
 
-    async def execute(self, payload: ConsumerPayload) -> None:
-        if not self.webhook:
+    @as_result(aiohttp.client.ClientError)
+    async def execute(self, webhook: Optional[str], payload: ConsumerPayload) -> None:
+        if not webhook:
             return
-        async with self._session.post(self.webhook, json=payload, ssl=True) as response:
+        async with self._session.post(webhook, json=payload, ssl=True) as response:
             text = await response.text()
             logger.debug("webhook response", text)

@@ -1,24 +1,119 @@
 classDiagram
-  class APISchema {
+  class AIOKafkaConsumer {
+    assign(partitions)
+    assignment()
+    beginning_offsets(partitions)
+    commit(offsets)
+    committed(partition)
+    end_offsets(partitions)
+    getmany()
+    getone()
+    highwater(partition)
+    last_poll_timestamp(partition)
+    last_stable_offset(partition)
+    offsets_for_times(timestamps)
+    partitions_for_topic(topic)
+    pause()
+    paused()
+    position(partition)
+    resume()
+    seek(partition, offset)
+    seek_to_beginning()
+    seek_to_committed()
+    seek_to_end()
+    start()
+    stop()
+    subscribe(topics, pattern, listener)
+    subscription()
+    topics()
+    unsubscribe()
   }
-  class ApiRoot {
-    config
-    name : str
-    version : str
+  class AIOKafkaProducer {
+    client : AIOKafkaClient
+    abort_transaction()
+    begin_transaction()
+    commit_transaction()
+    create_batch()
+    flush()
+    partitions_for(topic)
+    send(topic, value, key, partition, timestamp_ms, headers)
+    send_and_wait(topic, value, key, partition, timestamp_ms, headers)
+    send_batch(batch, topic)
+    send_offsets_to_transaction(offsets, group_id)
+    start()
+    stop()
+    transaction()
   }
-  class Config {
+  class ClientSession {
+    ATTRS : frozenset
+    auth
+    auto_decompress
+    closed
+    connector
+    connector_owner
+    cookie_jar
+    headers
+    json_serialize
+    loop
+    raise_for_status
+    requote_redirect_url
+    skip_auto_headers
+    timeout
+    trace_configs
+    trust_env
+    version
+    close() -> None
+    delete(url: StrOrURL) -> '_RequestContextManager'
+    detach() -> None
+    get(url: StrOrURL) -> '_RequestContextManager'
+    head(url: StrOrURL) -> '_RequestContextManager'
+    options(url: StrOrURL) -> '_RequestContextManager'
+    patch(url: StrOrURL) -> '_RequestContextManager'
+    post(url: StrOrURL) -> '_RequestContextManager'
+    put(url: StrOrURL) -> '_RequestContextManager'
+    request(method: str, url: StrOrURL) -> '_RequestContextManager'
+    ws_connect(url: StrOrURL) -> '_WSRequestContextManager'
+  }
+  class ConfigService {
+    config_file_service : ConfigFileService
+    overrides : Optional[dict]
+    profile_name : Optional[str]
+    execute() -> Settings
+  }
+  class Consumer {
+    config_service
+    consumer_record_to_payload(value: 'ConsumerRecord') -> ConsumerPayload
+    execute(topics: List[str], group_id: Optional[str], enable_auto_commit: bool, auto_offset_reset: str, auto_commit_interval_ms: int) -> AsyncIterator[ConsumerPayload]
+  }
+  class Container {
+    config_file_path
+    config_file_service
+    config_service
+    consume_service
+    consumer
+    hook_after_consume
+    hook_before_produce
+    overrides
+    produce_service
+    producer
+    profile_name
+    webhook_handler
+  }
+  class Producer {
+    config_service
+    execute(topic: str, value: bytes, key: Optional[bytes], partition) -> ProducerPayload
+  }
+  class Settings {
     bootstrap_servers : str
     middleware : List[Middleware]
   }
-  class ProduceParams {
-    values : List[JSONSerializable]
+  class WebhookHandler {
+    context() -> AsyncGenerator['WebhookHandler', None]
+    execute(webhook: Optional[str], payload: ConsumerPayload) -> None
   }
-  class ProduceResponse {
-    params
-    results : List[ProducerPayload]
-  }
-  ApiRoot --|> APISchema
-  ProduceParams --|> APISchema
-  ProduceResponse --|> APISchema
-  Config --* ApiRoot : config
-  ProduceParams --* ProduceResponse : params
+  ClientSession --* WebhookHandler : _session
+  AIOKafkaConsumer --* Consumer : _consumer
+  AIOKafkaProducer --* Producer : _producer
+  Settings --* Producer : _config
+  ConfigService --* Consumer : config_service
+  ConfigService --* Producer : config_service
