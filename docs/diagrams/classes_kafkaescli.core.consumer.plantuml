@@ -1,0 +1,44 @@
+@startuml classes_kafkaescli.core.consumer
+
+class "ConsumeService" as kafkaescli.core.consumer.services.ConsumeService #aliceblue {
+  auto_commit_interval_ms : int
+  auto_offset_reset : str
+  consumer
+  group_id : Optional[str]
+  hook_after_consume
+  limit : int
+  topics : List[str]
+  webhook : Optional[str]
+  webhook_handler
+  execute_async() -> Result[AsyncIterator[ConsumerPayload], BaseException]
+}
+class "ConsumerPayload" as kafkaescli.core.consumer.models.ConsumerPayload #aliceblue {
+  key : Optional[JSONSerializable]
+  metadata
+  value
+}
+class "ConsumerProtocol" as kafkaescli.core.consumer.services.ConsumerProtocol #aliceblue {
+  execute(topics: List[str], group_id: Optional[str], enable_auto_commit: bool, auto_offset_reset: str, auto_commit_interval_ms: int) -> Result[AsyncIterator[ConsumerPayload], BaseException]
+}
+class "HookAfterConsumeProtocol" as kafkaescli.core.consumer.services.HookAfterConsumeProtocol #aliceblue {
+  call(bundle: ConsumerPayload) -> Result[ConsumerPayload, BaseException]
+  execute_async() -> Result['HookAfterConsumeProtocol', BaseException]
+}
+class "PayloadMetadata" as kafkaescli.core.consumer.models.PayloadMetadata #aliceblue {
+  offset : int
+  partition : int
+  timestamp : int
+  topic : str
+}
+class "Union" as .Union #antiquewhite {
+}
+class "WebhookHandlerProtocol" as kafkaescli.core.consumer.services.WebhookHandlerProtocol #aliceblue {
+  execute_async() -> Result['WebhookHandlerProtocol', BaseException]
+  send(webhook: Optional[str], payload: ConsumerPayload) -> Result[None, BaseException]
+}
+.Union --* kafkaescli.core.consumer.models.ConsumerPayload : value
+kafkaescli.core.consumer.models.PayloadMetadata --* kafkaescli.core.consumer.models.ConsumerPayload : metadata
+kafkaescli.core.consumer.services.ConsumerProtocol --* kafkaescli.core.consumer.services.ConsumeService : consumer
+kafkaescli.core.consumer.services.HookAfterConsumeProtocol --* kafkaescli.core.consumer.services.ConsumeService : hook_after_consume
+kafkaescli.core.consumer.services.WebhookHandlerProtocol --* kafkaescli.core.consumer.services.ConsumeService : webhook_handler
+@enduml

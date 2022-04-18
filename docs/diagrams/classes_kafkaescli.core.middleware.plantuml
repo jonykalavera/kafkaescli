@@ -1,0 +1,29 @@
+@startuml classes_kafkaescli.core.middleware
+
+class "AsyncHookCallback" as kafkaescli.core.middleware.services.AsyncHookCallback #aliceblue {
+}
+class "ConfigService" as kafkaescli.core.config.services.ConfigService #aliceblue {
+  config_file_service : ConfigFileService
+  overrides : Optional[dict]
+  profile_name : Optional[str]
+  execute() -> Settings
+}
+class "Middleware" as kafkaescli.core.middleware.models.Middleware #aliceblue {
+  hook_after_consume : Optional[str]
+  hook_before_produce : Optional[str]
+}
+class "MiddlewareHook" as kafkaescli.core.middleware.models.MiddlewareHook #aliceblue {
+  name
+}
+class "MiddlewareService" as kafkaescli.core.middleware.services.MiddlewareService #aliceblue {
+  callback
+  config_service
+  extra_kwargs : Optional[Dict[str, Any]]
+  call(bundle: Bundle) -> Bundle
+  execute_async() -> 'MiddlewareService'
+}
+class "SyncHookCallback" as kafkaescli.core.middleware.services.SyncHookCallback #aliceblue {
+}
+kafkaescli.core.config.services.ConfigService --* kafkaescli.core.middleware.services.MiddlewareService : config_service
+kafkaescli.core.middleware.models.MiddlewareHook --* kafkaescli.core.middleware.services.MiddlewareService : callback
+@enduml

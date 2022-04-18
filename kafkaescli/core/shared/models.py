@@ -22,3 +22,8 @@ class Model(BaseModel):
 
 class DataModel(Model):
     uuid: UUID4 = fields.Field(default_factory=uuid4)
+
+    class Config:
+        json_encoders = {
+            bytes: lambda x: base64.b64encode(x).decode("utf-8"),
+        }

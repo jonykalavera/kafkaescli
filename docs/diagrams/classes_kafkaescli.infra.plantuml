@@ -83,7 +83,6 @@ class "ConfigService" as kafkaescli.core.config.services.ConfigService #cadetblu
 }
 class "Consumer" as kafkaescli.infra.kafka.Consumer #aliceblue {
   config_service
-  consumer_record_to_payload(value: 'ConsumerRecord') -> ConsumerPayload
   execute(topics: List[str], group_id: Optional[str], enable_auto_commit: bool, auto_offset_reset: str, auto_commit_interval_ms: int) -> AsyncIterator[ConsumerPayload]
 }
 class "Container" as kafkaescli.infra.containers.Container #aliceblue {
@@ -109,9 +108,10 @@ class "Settings" as kafkaescli.core.config.models.Settings #cadetblue {
   middleware : List[Middleware]
 }
 class "WebhookHandler" as kafkaescli.infra.webhook.WebhookHandler #aliceblue {
-  context() -> AsyncGenerator['WebhookHandler', None]
-  execute(webhook: Optional[str], payload: ConsumerPayload) -> None
+  execute()
+  send(webhook: Optional[str], payload: ConsumerPayload) -> None
 }
+aiohttp.client.ClientSession --* kafkaescli.infra.webhook.WebhookHandler : _session
 aiohttp.client.ClientSession --* kafkaescli.infra.webhook.WebhookHandler : _session
 aiokafka.consumer.consumer.AIOKafkaConsumer --* kafkaescli.infra.kafka.Consumer : _consumer
 aiokafka.producer.producer.AIOKafkaProducer --* kafkaescli.infra.kafka.Producer : _producer

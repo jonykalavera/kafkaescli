@@ -3,7 +3,16 @@
 """
 import uuid
 from dataclasses import dataclass, field
-from typing import AsyncContextManager, AsyncIterator, List, Optional, Protocol
+from typing import (
+    AsyncContextManager,
+    AsyncGenerator,
+    AsyncIterator,
+    ContextManager,
+    Generator,
+    List,
+    Optional,
+    Protocol,
+)
 
 from kafkaescli import constants
 from kafkaescli.core.consumer.models import ConsumerPayload
@@ -24,15 +33,24 @@ class ConsumerProtocol(Protocol):
 
 
 class WebhookHandlerProtocol(Protocol):
-    async def context(self) -> AsyncContextManager['WebhookHandlerProtocol']:
+    async def __aenter__(self) -> 'WebhookHandlerProtocol':
         ...
 
-    async def execute(self, webhook: Optional[str], payload: ConsumerPayload) -> Result[None, BaseException]:
+    async def __aexit__(self) -> None:
+        ...
+
+    async def send(self, webhook: Optional[str], payload: ConsumerPayload) -> Result[None, BaseException]:
+        ...
+
+    async def execute_async(self) -> Result['WebhookHandlerProtocol', BaseException]:
         ...
 
 
 class HookAfterConsumeProtocol(Protocol):
-    async def execute(self, bundle: ConsumerPayload) -> Result[ConsumerPayload, BaseException]:
+    async def call(self, bundle: ConsumerPayload) -> Result[ConsumerPayload, BaseException]:
+        ...
+
+    async def execute_async(self) -> Result['HookAfterConsumeProtocol', BaseException]:
         ...
 
 
@@ -61,11 +79,12 @@ class ConsumeService(AsyncService):
             yield value
 
     async def _process_values(self, values: AsyncIterator[ConsumerPayload]):
-        hook_after_consume = (await self.hook_after_consume.execute_async()).unwrap()
-        async with self.webhook_handler.context() as callback:
+        hook_after_consume = (await self.hook_after_consume.execute_async()).unwrap_or_throw()
+        webhook = (await self.webhook_handler.execute_async()).unwrap_or_throw()
+        async with webhook as callback:
             async for payload in values:
                 payload = await hook_after_consume.call(payload)
-                await callback.execute(self.webhook, payload=payload)
+                await callback.send(self.webhook, payload=payload)
                 yield payload
 
     async def execute_async(self) -> Result[AsyncIterator[ConsumerPayload], BaseException]:

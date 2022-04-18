@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import Optional
 
 from kafkaescli.core.config.models import ConfigFile, Settings
-from kafkaescli.core.services import Service
+from kafkaescli.core.shared.services import Service
 from kafkaescli.lib.results import as_result
 
 
@@ -43,6 +43,6 @@ class ConfigService(Service):
 
     @as_result(ValueError)
     def execute(self) -> Settings:
-        config_file = self.config_file_service.execute().unwrap()
+        config_file = self.config_file_service.execute().unwrap_or_throw()
         profile_config = self._get_profile_config(config_file=config_file)
         return self._merge_overrides(profile_config)

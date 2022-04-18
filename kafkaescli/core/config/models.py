@@ -1,10 +1,10 @@
 from typing import List, Optional
 
-from pydantic import BaseSettings, env_settings, fields
+from pydantic import BaseSettings, fields
 
 from kafkaescli import constants
 from kafkaescli.core.middleware.models import Middleware
-from kafkaescli.core.models import Model
+from kafkaescli.core.shared.models import Model
 
 
 class Settings(BaseSettings):

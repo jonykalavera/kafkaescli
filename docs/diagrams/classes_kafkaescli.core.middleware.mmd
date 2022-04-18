@@ -1,0 +1,27 @@
+classDiagram
+  class AsyncHookCallback {
+  }
+  class ConfigService {
+    config_file_service : ConfigFileService
+    overrides : Optional[dict]
+    profile_name : Optional[str]
+    execute() -> Settings
+  }
+  class Middleware {
+    hook_after_consume : Optional[str]
+    hook_before_produce : Optional[str]
+  }
+  class MiddlewareHook {
+    name
+  }
+  class MiddlewareService {
+    callback
+    config_service
+    extra_kwargs : Optional[Dict[str, Any]]
+    call(bundle: Bundle) -> Bundle
+    execute_async() -> 'MiddlewareService'
+  }
+  class SyncHookCallback {
+  }
+  ConfigService --* MiddlewareService : config_service
+  MiddlewareHook --* MiddlewareService : callback

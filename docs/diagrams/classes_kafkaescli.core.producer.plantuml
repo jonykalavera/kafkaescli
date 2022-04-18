@@ -1,0 +1,36 @@
+@startuml classes_kafkaescli.core.producer
+
+class "HookBeforeProduceProtocol" as kafkaescli.core.producer.services.HookBeforeProduceProtocol #aliceblue {
+  call(bundle: JSONSerializable) -> Result[JSONSerializable, BaseException]
+  execute_async() -> Result['HookBeforeProduceProtocol', BaseException]
+}
+class "PayloadMetadata" as kafkaescli.core.producer.models.PayloadMetadata #aliceblue {
+  offset : int
+  partition : int
+  timestamp : int
+  topic : str
+}
+class "ProduceService" as kafkaescli.core.producer.services.ProduceService #aliceblue {
+  hook_before_produce
+  keys : List[Optional[JSONSerializable]]
+  partition : int
+  producer
+  topic : str
+  values : List[JSONSerializable]
+  execute_async() -> AsyncIterator[ProducerPayload]
+}
+class "ProducerPayload" as kafkaescli.core.producer.models.ProducerPayload #aliceblue {
+  key : Optional[JSONSerializable]
+  metadata
+  value
+}
+class "ProducerProtocol" as kafkaescli.core.producer.services.ProducerProtocol #aliceblue {
+  execute(topic: str, value: bytes, key: Optional[bytes], partition) -> Result[ProducerPayload, BaseException]
+}
+class "Union" as .Union #antiquewhite {
+}
+.Union --* kafkaescli.core.producer.models.ProducerPayload : value
+kafkaescli.core.producer.models.PayloadMetadata --* kafkaescli.core.producer.models.ProducerPayload : metadata
+kafkaescli.core.producer.services.HookBeforeProduceProtocol --* kafkaescli.core.producer.services.ProduceService : hook_before_produce
+kafkaescli.core.producer.services.ProducerProtocol --* kafkaescli.core.producer.services.ProduceService : producer
+@enduml

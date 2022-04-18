@@ -1,0 +1,26 @@
+classDiagram
+  class ConfigFile {
+    default_profile : Optional[str]
+    profiles : List[ConfigProfile]
+    version : int
+  }
+  class ConfigFileService {
+    config_file_path : Optional[str]
+    execute() -> ConfigFile
+  }
+  class ConfigProfile {
+    config
+    name : str
+  }
+  class ConfigService {
+    config_file_service
+    overrides : Optional[dict]
+    profile_name : Optional[str]
+    execute() -> Settings
+  }
+  class Settings {
+    bootstrap_servers : str
+    middleware : List[Middleware]
+  }
+  Settings --* ConfigProfile : config
+  ConfigFileService --* ConfigService : config_file_service

@@ -1,13 +1,14 @@
 import asyncio
 from dataclasses import dataclass, field
 from functools import cached_property, partial
+from types import coroutine
 from typing import Any, Dict, List, Optional, Protocol, TypeVar, Union
 
 from pydantic.utils import import_string
 
 from kafkaescli.core.config.services import ConfigService
 from kafkaescli.core.middleware.models import Middleware, MiddlewareHook
-from kafkaescli.core.services import AsyncService
+from kafkaescli.core.shared.services import AsyncService
 from kafkaescli.lib.results import as_result
 
 Bundle = TypeVar("Bundle")
@@ -64,6 +65,6 @@ class MiddlewareService(AsyncService):
             hook_method: attribute name.
             bundle: object to transform through the pipeline.
         """
-        config = self.config_service.execute().unwrap()
+        config = self.config_service.execute().unwrap_or_throw()
         self._middleware = config.middleware
         return self

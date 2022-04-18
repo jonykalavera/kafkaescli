@@ -4,7 +4,7 @@ from typing import Optional
 from pydantic import fields
 
 from kafkaescli.constants import DOT_PATH_RE
-from kafkaescli.core.models import Model
+from kafkaescli.core.shared.models import Model
 
 
 class MiddlewareHook(str, Enum):

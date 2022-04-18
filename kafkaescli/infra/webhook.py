@@ -1,32 +1,33 @@
 import logging
-from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
-from typing import AsyncGenerator, Optional
+from typing import Optional
 
 import aiohttp
 
 from kafkaescli.core.consumer.models import ConsumerPayload
+from kafkaescli.core.shared.services import AsyncService
 from kafkaescli.lib.results import as_result
 
 logger = logging.getLogger(__name__)
 
 
-@dataclass
-class WebhookHandler:
-    _session: aiohttp.ClientSession = field(init=False)
+class WebhookHandler(AsyncService):
+    _session: aiohttp.ClientSession
 
-    @asynccontextmanager
-    async def context(self) -> AsyncGenerator['WebhookHandler', None]:
-        try:
-            self._session = aiohttp.ClientSession(raise_for_status=True)
-            yield self
-        finally:
-            await self._session.close()
+    async def __aenter__(self) -> 'WebhookHandler':
+        return self
+
+    async def __aexit__(self):
+        await self._session.close()
 
     @as_result(aiohttp.client.ClientError)
-    async def execute(self, webhook: Optional[str], payload: ConsumerPayload) -> None:
+    async def send(self, webhook: Optional[str], payload: ConsumerPayload) -> None:
         if not webhook:
             return
         async with self._session.post(webhook, json=payload, ssl=True) as response:
             text = await response.text()
             logger.debug("webhook response", text)
+
+    @as_result(aiohttp.client.ClientError)
+    def execute(self):
+        self._session = aiohttp.ClientSession(raise_for_status=True)

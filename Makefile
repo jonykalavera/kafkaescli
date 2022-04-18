@@ -31,7 +31,11 @@ bump.%:
 
 diagrams.%:
 	rm -fr docs/diagrams/*.$*
-	pyreverse -d ./docs/diagrams --colorized -o "$*" -p kafkaescli.core kafkaescli.core
+	pyreverse -d ./docs/diagrams --colorized -o "$*" -s 1 -p kafkaescli.core.shared kafkaescli.core.shared
+	pyreverse -d ./docs/diagrams --colorized -o "$*" -s 1 -p kafkaescli.core.config kafkaescli.core.config
+	pyreverse -d ./docs/diagrams --colorized -o "$*" -s 1 -p kafkaescli.core.middleware kafkaescli.core.middleware
+	pyreverse -d ./docs/diagrams --colorized -o "$*" -s 1 -p kafkaescli.core.consumer kafkaescli.core.consumer
+	pyreverse -d ./docs/diagrams --colorized -o "$*" -s 1 -p kafkaescli.core.producer kafkaescli.core.producer
 	pyreverse -d ./docs/diagrams --colorized -o "$*" -s 1 -p kafkaescli.infra kafkaescli.infra
 	pyreverse -d ./docs/diagrams --colorized -o "$*" -s 1 -p kafkaescli.interface kafkaescli.interface
 	pyreverse -d ./docs/diagrams --colorized -o "$*" -s 1 -p kafkaescli.lib kafkaescli.lib

@@ -1,16 +1,17 @@
 """AVRO tools module."""
-import json
 import io
+import json
+
+import avro.schema
 from avro.datafile import DataFileReader, DataFileWriter
 from avro.io import DatumReader, DatumWriter
-import avro.schema
 
-from kafkaescli.domain.models import ConsumerPayload
-from kafkaescli.domain.types import JSONSerializable
-from kafkaescli.lib.middleware import Middleware, AsyncMiddleware
+from kafkaescli.core.consumer.models import ConsumerPayload
+from kafkaescli.core.models import JSONSerializable
+
 
 def deserialize(value):
-    """ De-serializes AVRO encoded binary string and yield records.
+    """De-serializes AVRO encoded binary string and yield records.
 
     Args:
         value (str): binary string value.
@@ -25,7 +26,7 @@ def deserialize(value):
 
 
 def deserialize_first(value):
-    """ Deserialize AVRO encoded binary string and return the first record.
+    """Deserialize AVRO encoded binary string and return the first record.
 
     Args:
         value (str): binary string value.
@@ -37,7 +38,7 @@ def deserialize_first(value):
 
 
 def serialize(records, schema_json):
-    """ Serialize list of records to AVRO encoded binary string.
+    """Serialize list of records to AVRO encoded binary string.
 
     Args:
         records (list): list of records.
@@ -57,21 +58,21 @@ def serialize(records, schema_json):
     return result
 
 
-class AvroMiddleware(AsyncMiddleware):
-    async def hook_before_produce(self, value: JSONSerializable) -> JSONSerializable:
-        schema = json.dumps({
-            "type" : "record",
-            "namespace" : "app.domain",
-            "name" : "Employee",
-            "fields" : [
-                { "name" : "Name" , "type" : "string" },
-                { "name" : "Age" , "type" : "int" }
-            ]
-        })
-        value = serialize([json.loads(str(value))], schema)
-        return value
+EMPLOYEE_SCHEMA = json.dumps(
+    {
+        "type": "record",
+        "namespace": "app.domain",
+        "name": "Employee",
+        "fields": [{"name": "Name", "type": "string"}, {"name": "Age", "type": "int"}],
+    }
+)
 
 
-    async def hook_after_consume(self, payload: ConsumerPayload) -> ConsumerPayload:
-        payload.value = deserialize_first(payload.value)
-        return payload
+async def hook_before_produce(value: JSONSerializable) -> JSONSerializable:
+    value = serialize([json.loads(str(value))], EMPLOYEE_SCHEMA)
+    return value
+
+
+async def hook_after_consume(payload: ConsumerPayload) -> ConsumerPayload:
+    payload.value = deserialize_first(payload.value)
+    return payload

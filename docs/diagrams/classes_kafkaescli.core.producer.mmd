@@ -1,0 +1,34 @@
+classDiagram
+  class HookBeforeProduceProtocol {
+    call(bundle: JSONSerializable) -> Result[JSONSerializable, BaseException]
+    execute_async() -> Result['HookBeforeProduceProtocol', BaseException]
+  }
+  class PayloadMetadata {
+    offset : int
+    partition : int
+    timestamp : int
+    topic : str
+  }
+  class ProduceService {
+    hook_before_produce
+    keys : List[Optional[JSONSerializable]]
+    partition : int
+    producer
+    topic : str
+    values : List[JSONSerializable]
+    execute_async() -> AsyncIterator[ProducerPayload]
+  }
+  class ProducerPayload {
+    key : Optional[JSONSerializable]
+    metadata
+    value
+  }
+  class ProducerProtocol {
+    execute(topic: str, value: bytes, key: Optional[bytes], partition) -> Result[ProducerPayload, BaseException]
+  }
+  class Union {
+  }
+  Union --* ProducerPayload : value
+  PayloadMetadata --* ProducerPayload : metadata
+  HookBeforeProduceProtocol --* ProduceService : hook_before_produce
+  ProducerProtocol --* ProduceService : producer

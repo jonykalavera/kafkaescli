@@ -6,8 +6,8 @@ from starlette.responses import StreamingResponse
 
 from kafkaescli import constants
 from kafkaescli.core.consumer.models import ConsumerPayload
-from kafkaescli.core.models import JSONSerializable
 from kafkaescli.core.producer.models import ProducerPayload
+from kafkaescli.core.shared.models import JSONSerializable
 from kafkaescli.infra import containers
 from kafkaescli.interface.web import schemas
 from kafkaescli.lib.results import Result

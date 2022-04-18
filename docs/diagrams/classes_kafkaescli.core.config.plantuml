@@ -1,0 +1,28 @@
+@startuml classes_kafkaescli.core.config
+
+class "ConfigFile" as kafkaescli.core.config.models.ConfigFile #aliceblue {
+  default_profile : Optional[str]
+  profiles : List[ConfigProfile]
+  version : int
+}
+class "ConfigFileService" as kafkaescli.core.config.services.ConfigFileService #aliceblue {
+  config_file_path : Optional[str]
+  execute() -> ConfigFile
+}
+class "ConfigProfile" as kafkaescli.core.config.models.ConfigProfile #aliceblue {
+  config
+  name : str
+}
+class "ConfigService" as kafkaescli.core.config.services.ConfigService #aliceblue {
+  config_file_service
+  overrides : Optional[dict]
+  profile_name : Optional[str]
+  execute() -> Settings
+}
+class "Settings" as kafkaescli.core.config.models.Settings #aliceblue {
+  bootstrap_servers : str
+  middleware : List[Middleware]
+}
+kafkaescli.core.config.models.Settings --* kafkaescli.core.config.models.ConfigProfile : config
+kafkaescli.core.config.services.ConfigFileService --* kafkaescli.core.config.services.ConfigService : config_file_service
+@enduml

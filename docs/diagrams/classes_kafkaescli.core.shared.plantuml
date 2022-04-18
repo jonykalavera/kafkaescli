@@ -1,0 +1,28 @@
+@startuml classes_kafkaescli.core.shared
+
+class "AsyncService" as kafkaescli.core.shared.services.AsyncService #aliceblue {
+  execute() -> Result[R, BaseException]
+}
+class "Config" as kafkaescli.core.shared.models.Model.Config #aliceblue {
+  extra : str
+  use_enum_values : bool
+}
+class "Config" as kafkaescli.core.shared.models.DataModel.Config #aliceblue {
+  json_encoders : dict
+}
+class "DataModel" as kafkaescli.core.shared.models.DataModel #aliceblue {
+  uuid
+}
+class "Model" as kafkaescli.core.shared.models.Model #aliceblue {
+}
+class "Service" as kafkaescli.core.shared.services.Service #aliceblue {
+  execute_async() -> Result[R, BaseException]
+}
+class "ServiceInterface" as kafkaescli.core.shared.services.ServiceInterface #aliceblue {
+  execute() -> Result[R, BaseException]
+  execute_async() -> Result[R, BaseException]
+}
+kafkaescli.core.shared.models.DataModel --|> kafkaescli.core.shared.models.Model
+kafkaescli.core.shared.services.AsyncService --|> kafkaescli.core.shared.services.ServiceInterface
+kafkaescli.core.shared.services.Service --|> kafkaescli.core.shared.services.ServiceInterface
+@enduml

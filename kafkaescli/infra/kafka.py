@@ -54,7 +54,7 @@ class Consumer:
     config_service: ConfigService
     _consumer: AIOKafkaConsumer = field(init=False)
 
-    def consumer_record_to_payload(self, value: "ConsumerRecord") -> ConsumerPayload:
+    def _consumer_record_to_payload(self, value: "ConsumerRecord") -> ConsumerPayload:
         return ConsumerPayload.parse_obj(
             dict(
                 metadata={
@@ -75,7 +75,7 @@ class Consumer:
         auto_offset_reset: str = 'latest',
         auto_commit_interval_ms: int = 1000,
     ) -> AsyncIterator[ConsumerPayload]:
-        config = self.config_service.execute().unwrap()
+        config = self.config_service.execute().unwrap_or_throw()
         self._consumer = AIOKafkaConsumer(
             bootstrap_servers=config.bootstrap_servers,
             *topics,
@@ -89,7 +89,7 @@ class Consumer:
         try:
             # Consume values
             async for msg in self._consumer:
-                payload = self.consumer_record_to_payload(msg)
+                payload = self._consumer_record_to_payload(msg)
                 yield payload
                 await self._consumer.commit()
         finally:
@@ -104,7 +104,7 @@ class Producer:
     _producer: AIOKafkaProducer = field(init=False)
 
     def __post_init__(self):
-        self._config = self.config_service.execute().unwrap()
+        self._config = self.config_service.execute().unwrap_or_throw()
 
     @as_result(*KAFKA_EXCEPTIONS)
     async def execute(self, topic: str, value: bytes, key: Optional[bytes] = None, partition=1) -> ProducerPayload:

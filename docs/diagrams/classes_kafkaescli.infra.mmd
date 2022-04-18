@@ -82,7 +82,6 @@ classDiagram
   }
   class Consumer {
     config_service
-    consumer_record_to_payload(value: 'ConsumerRecord') -> ConsumerPayload
     execute(topics: List[str], group_id: Optional[str], enable_auto_commit: bool, auto_offset_reset: str, auto_commit_interval_ms: int) -> AsyncIterator[ConsumerPayload]
   }
   class Container {
@@ -108,9 +107,10 @@ classDiagram
     middleware : List[Middleware]
   }
   class WebhookHandler {
-    context() -> AsyncGenerator['WebhookHandler', None]
-    execute(webhook: Optional[str], payload: ConsumerPayload) -> None
+    execute()
+    send(webhook: Optional[str], payload: ConsumerPayload) -> None
   }
+  ClientSession --* WebhookHandler : _session
   ClientSession --* WebhookHandler : _session
   AIOKafkaConsumer --* Consumer : _consumer
   AIOKafkaProducer --* Producer : _producer

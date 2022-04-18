@@ -1,0 +1,26 @@
+classDiagram
+  class AsyncService {
+    execute() -> Result[R, BaseException]
+  }
+  class Config {
+    extra : str
+    use_enum_values : bool
+  }
+  class Config {
+    json_encoders : dict
+  }
+  class DataModel {
+    uuid
+  }
+  class Model {
+  }
+  class Service {
+    execute_async() -> Result[R, BaseException]
+  }
+  class ServiceInterface {
+    execute() -> Result[R, BaseException]
+    execute_async() -> Result[R, BaseException]
+  }
+  DataModel --|> Model
+  AsyncService --|> ServiceInterface
+  Service --|> ServiceInterface

@@ -3,8 +3,8 @@ from typing import List
 from pydantic import BaseModel, fields
 
 from kafkaescli.core.config.models import Settings
-from kafkaescli.core.models import JSONSerializable
 from kafkaescli.core.producer.models import ProducerPayload
+from kafkaescli.core.shared.models import JSONSerializable
 
 
 class APISchema(BaseModel):

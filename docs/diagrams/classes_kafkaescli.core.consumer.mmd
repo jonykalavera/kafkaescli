@@ -1,0 +1,42 @@
+classDiagram
+  class ConsumeService {
+    auto_commit_interval_ms : int
+    auto_offset_reset : str
+    consumer
+    group_id : Optional[str]
+    hook_after_consume
+    limit : int
+    topics : List[str]
+    webhook : Optional[str]
+    webhook_handler
+    execute_async() -> Result[AsyncIterator[ConsumerPayload], BaseException]
+  }
+  class ConsumerPayload {
+    key : Optional[JSONSerializable]
+    metadata
+    value
+  }
+  class ConsumerProtocol {
+    execute(topics: List[str], group_id: Optional[str], enable_auto_commit: bool, auto_offset_reset: str, auto_commit_interval_ms: int) -> Result[AsyncIterator[ConsumerPayload], BaseException]
+  }
+  class HookAfterConsumeProtocol {
+    call(bundle: ConsumerPayload) -> Result[ConsumerPayload, BaseException]
+    execute_async() -> Result['HookAfterConsumeProtocol', BaseException]
+  }
+  class PayloadMetadata {
+    offset : int
+    partition : int
+    timestamp : int
+    topic : str
+  }
+  class Union {
+  }
+  class WebhookHandlerProtocol {
+    execute_async() -> Result['WebhookHandlerProtocol', BaseException]
+    send(webhook: Optional[str], payload: ConsumerPayload) -> Result[None, BaseException]
+  }
+  Union --* ConsumerPayload : value
+  PayloadMetadata --* ConsumerPayload : metadata
+  ConsumerProtocol --* ConsumeService : consumer
+  HookAfterConsumeProtocol --* ConsumeService : hook_after_consume
+  WebhookHandlerProtocol --* ConsumeService : webhook_handler

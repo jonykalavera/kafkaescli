@@ -1,8 +1,10 @@
 """Containers module."""
 
+from typing import Optional
+
 from dependency_injector import containers, providers
 
-from kafkaescli.core.config.models import Settings
+from kafkaescli import constants
 from kafkaescli.core.config.services import ConfigFileService, ConfigService
 from kafkaescli.core.consumer.services import ConsumeService
 from kafkaescli.core.middleware.models import MiddlewareHook
@@ -14,9 +16,9 @@ from kafkaescli.infra.webhook import WebhookHandler
 
 class Container(containers.DeclarativeContainer):
     # overridable config
-    config_file_path = providers.Object()
-    overrides = providers.Object()
-    profile_name = providers.Object()
+    config_file_path = providers.Object(constants.DEFAULT_CONFIG_FILE_PATH)
+    overrides = providers.Dict()
+    profile_name = providers.Object(str)
 
     # Services
     config_file_service = providers.Factory(ConfigFileService, config_file_path=config_file_path)

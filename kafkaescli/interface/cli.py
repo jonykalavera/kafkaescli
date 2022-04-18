@@ -6,12 +6,10 @@ import uvicorn
 
 from kafkaescli import constants
 from kafkaescli.core.consumer.models import ConsumerPayload
-from kafkaescli.core.models import JSONSerializable
 from kafkaescli.core.producer.models import ProducerPayload
 from kafkaescli.infra import containers
 
 app = typer.Typer()
-container = containers.Container()
 Payload = Union[ConsumerPayload, ProducerPayload]
 
 
@@ -43,6 +41,7 @@ def _echo_output(
 
 @app.command()
 def consume(
+    ctx: typer.Context,
     topics: List[str] = typer.Argument(..., envvar=constants.KAFKAESCLI_CONSUMER_TOPICS),
     metadata: bool = typer.Option(default=False, envvar=constants.KAFKAESCLI_CONSUMER_METADATA),
     echo: bool = typer.Option(default=True, envvar=constants.KAFKAESCLI_CONSUMER_ECHO),
@@ -52,13 +51,17 @@ def consume(
     limit: int = typer.Option(default=-1, envvar=constants.KAFKAESCLI_CONSUMER_LIMIT),
 ):
     """Consume values from kafka topics."""
-    result = container.consume_service(
-        topics=topics,
-        group_id=group_id,
-        auto_offset_reset=auto_offset_reset,
-        limit=limit,
-        webhook=webhook,
-    ).execute()
+    result = (
+        ctx.meta['core']
+        .consume_service(
+            topics=topics,
+            group_id=group_id,
+            auto_offset_reset=auto_offset_reset,
+            limit=limit,
+            webhook=webhook,
+        )
+        .execute()
+    )
     echo_output = lambda m: _echo_output(m, metadata=metadata, echo=echo)
     result.handle(echo_output, _print_error_and_exit)
 
@@ -72,9 +75,7 @@ def _get_lines(file_path="-") -> Iterator[str]:
         yield line.strip("\n")
 
 
-def _get_values(
-    stdin: bool, file: Optional[str], values: Optional[List[JSONSerializable]] = None
-) -> List[JSONSerializable]:
+def _get_values(stdin: bool, file: Optional[str], values: Optional[List[str]] = None) -> List[str]:
     if stdin:
         values = list(_get_lines("-"))
     elif file is not None:
@@ -84,6 +85,7 @@ def _get_values(
 
 @app.command()
 def produce(
+    ctx: typer.Context,
     topic: str = typer.Argument(..., envvar=constants.KAFKAESCLI_PRODUCER_TOPIC),
     values: Optional[List[str]] = typer.Argument(None, envvar=constants.KAFKAESCLI_PRODUCER_VALUES),
     file: Optional[str] = typer.Option(None, envvar=constants.KAFKAESCLI_PRODUCER_FILE),
@@ -93,10 +95,14 @@ def produce(
 ):
     """Produce values to a kafka topic."""
     global config
-    result = container.produce_service(
-        topic=topic,
-        values=_get_values(stdin=stdin, file=file, values=values),
-    ).execute()
+    result = (
+        ctx.meta['core']
+        .produce_service(
+            topic=topic,
+            values=_get_values(stdin=stdin, file=file, values=values),
+        )
+        .execute()
+    )
     echo_output = lambda x: _echo_output(x, metadata=metadata, key="value", echo=echo)
     result.handle(echo_output, _print_error_and_exit)
 
@@ -129,6 +135,7 @@ def runserver(
 
 @app.callback()
 def main(
+    ctx: typer.Context,
     profile: Optional[str] = typer.Option(default=None, envvar=constants.KAFKAESCLI_PROFILE),
     config_file_path: str = typer.Option(default=None, envvar=constants.KAFKAESCLI_CONFIG_FILE_PATH),
     bootstrap_servers: str = typer.Option(
@@ -137,8 +144,7 @@ def main(
     middleware: Optional[List[str]] = typer.Option(default=None, envvar=constants.KAFKAESCLI_MIDDLEWARE),
 ):
     """A magical kafka command line interface."""
-    global container
-    container = containers.Container(
+    ctx.meta['core'] = containers.Container(
         profile_name=profile,
         config_file_path=config_file_path,
         overrides=dict(
@@ -146,5 +152,5 @@ def main(
             middleware=middleware,
         ),
     )
-    container.init_resources()
-    container.wire(modules=[__name__])
+    ctx.meta['core'].init_resources()
+    ctx.meta['core'].wire(modules=[__name__])

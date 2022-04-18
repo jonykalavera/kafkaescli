@@ -1,5 +1,5 @@
 import asyncio
-from typing import AsyncIterator, Awaitable, Iterator, Literal, TypeVar, Union
+from typing import AsyncIterator, Iterator, TypeVar
 
 
 def get_or_create_async_loop():
