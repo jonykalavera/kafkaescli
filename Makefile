@@ -18,7 +18,7 @@ install-poetry:
 	pip install pip --upgrade
 	pip install poetry==$(POETRY_VERSION)
 
-make build:
+build:
 	poetry build
 
 install:
@@ -68,11 +68,9 @@ docker-test:
 pipeline-test: pip-install test
 	coveralls
 
-pipeline-release.%: pip-install groom build
+pipeline-release.%: pip-install groom diagrams.plantuml diagrams.mmd build
+	cd docs/ && $(MAKE) html
 	git config --global user.email "ci-build@kafkaescli.pipeline"
 	git config --global user.name "ci-build"
 	$(MAKE) bump.$*
 	poetry publish --username=__token__ --password=$$PYPI_API_TOKEN
-
-pipeline-build-docs: diagrams.plantuml diagrams.mmd
-	cd docs/ && $(MAKE) html

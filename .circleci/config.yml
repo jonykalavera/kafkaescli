@@ -92,34 +92,22 @@ workflows:
           filters:
             branches:
               only: /^main$/
-            tags:
-              only: /^\d+\.\d+\.\d+$/
           type: approval
           requires:
            - test
       - release-patch:
           requires:
             - hold
-  docs:
-    jobs:
-      - docs-build:
-          filters:
-            branches:
-              only: /^main$/
       - docs-deploy:
           requires:
-            - docs-build
-
+            - hold
   docker:
     jobs:
       - build-docker:
           filters:
-            branches:
-              only: /^main$/
-      - hold:
-          filters:
             tags:
               only: /^\d+\.\d+\.\d+$/
+      - hold:
           type: approval
           requires:
            - build-docker
